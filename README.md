@@ -187,6 +187,59 @@ permission to access a sub-set of the data.
         });
     });
 
+#### AuthController Changes
+
+When using tenancy, the AuthController must be modified to include the redirector service
+to know where to go to after a successful login. If your AuthController is the standard
+Laravel provided one, simply add an authenticated method:
+
+    class AuthController extends Controller
+    {
+        /**
+         * @param Request $request
+         * @param User    $user
+         *
+         * @return \Illuminate\Http\RedirectResponse
+         */
+        protected function authenticated($request, $user)
+        {
+            // do post authentication stuff...
+            //$user->setLastLogin(Carbon::now());
+            //$em = app('em');
+            //$em->flush($user);
+
+            // redirect to tenant uri
+            return app('auth.tenant.redirector')->resolve($user);
+        }
+    }
+
+In addition, if you allow registration of new users you will need to now add support for the
+tenancy component. This must be done by overriding the postRegister method:
+
+    class AuthController ...
+    {
+        public function postRegister(Request $request)
+        {
+            $validator = $this->validator($request->all());
+
+            if ($validator->fails()) {
+                $this->throwValidationException(
+                    $request,
+                    $validator
+                );
+            }
+
+            $user = $this->create($request->all());
+            Auth::login($user);
+
+            // call into redirector which was previously mapped above
+            return $this->authenticated($request, $user);
+        }
+    }
+
+It is up to the implementer to figure out what to do with new registrations or if this
+should even be allowed.
+
 #### Tenant Aware Entity
 
 Finally you need something that is actually tenant aware! So lets create a really basic
