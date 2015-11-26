@@ -1,0 +1,28 @@
+{
+  "name": "somnambulist/laravel-doctrine-tenancy",
+  "type": "library",
+  "description": "A multi-tenancy implementation that uses Laravel and Doctrine.",
+  "keywords": [ "doctrine", "laravel", "laravel-doctrine", "tenancy", "multi-tenancy" ],
+  "minimum-stability": "dev",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Dave Redfern",
+      "email": "dave@scorpioframework.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Somnambulist\\Tenancy\\": "src/"
+    }
+  },
+  "require": {
+    "php": ">=5.5.0",
+    "eloquent/enumeration": "5.1.1",
+    "laravel-doctrine/orm": "1.0.*",
+    "somnambulist/laravel-doctrine-behaviours": "dev-master"
+  },
+  "require-dev": {
+
+  }
+}
