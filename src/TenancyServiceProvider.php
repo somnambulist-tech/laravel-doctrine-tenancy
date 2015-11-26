@@ -150,12 +150,8 @@ class TenancyServiceProvider extends ServiceProvider
      */
     protected function registerTenantParticipantRepository()
     {
-        if (false == $repository = $this->app->make('config')->get('tenancy.participant_repository')) {
-            throw new \RuntimeException(sprintf('Missing participant_repository in config/tenancy.php'));
-        }
-        if (false == $entity = $this->app->make('config')->get('tenancy.participant_class')) {
-            throw new \RuntimeException(sprintf('Missing participant_class in config/tenancy.php'));
-        }
+        $repository = $this->app->make('config')->get('tenancy.participant_repository');
+        $entity     = $this->app->make('config')->get('tenancy.participant_class');
 
         $this->app->singleton(TenantParticipantRepository::class, function ($app) use ($repository, $entity) {
             return new TenantParticipantRepository(
