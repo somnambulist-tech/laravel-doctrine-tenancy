@@ -430,6 +430,33 @@ closed, others shared, some user; this may result in strange results or inconsis
 It may lead to a large increase in duplicate records. It is up to you to manage this
 accordingly.
 
+## Routing
+
+For any route within the tenant group and provided that the placeholder name is tenant_creator_id,
+any route generated for a tenant controller will automatically embed the current tenant information.
+In fact both the owner and creator are automatically checked for and injected when creating
+routes.
+
+This is done by overriding the default UrlGenerator with one that adds the Tenant entity and then
+checking the route information for both {tenant_owner_id} and {tenant_creator_id}. The properties
+are then automatically injected.
+
+This only occurs when using named routes and within a tenancy group.
+
+For paths, you will have to include the tenant information yourself; similarly when creating a tenant
+selection list, you must supply the tenant information as parameters when outputting the links.
+
+The tenant parameters can of course be overridden by simply setting them when calling link_to_route.
+
+You should use named routes for tenancy, as this makes it easier to make changes to the routing
+structure.
+
+Finally: as with repositories you should clearly label tenant based routes so that they are not
+confused with standard routes.
+
+In addition any un-authenticated routes should be excluded from the tenancy group - unless you
+implement a tenant aware anonymous user (not recommended).
+
 ## Twig Extension
 
 A Twig extension will be automatically loaded if Twig is detected in the container which will
