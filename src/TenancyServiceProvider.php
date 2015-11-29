@@ -59,6 +59,7 @@ class TenancyServiceProvider extends ServiceProvider
         $this->registerUrlGenerator();
         $this->registerTenantParticipantMappings();
         $this->registerTenantParticipantRepository();
+        $this->registerDomainAwareTenantParticipantRepository();
         $this->registerTenantAwareRepositories();
         $this->registerTwigExtension();
     }
@@ -160,6 +161,27 @@ class TenancyServiceProvider extends ServiceProvider
         });
 
         $this->app->alias(TenantParticipantRepository::class, 'auth.tenant.participant_repository');
+    }
+
+    /**
+     * Register the main tenant participant repository
+     */
+    protected function registerDomainAwareTenantParticipantRepository()
+    {
+        $repository = $this->app->make('config')->get('tenancy.domain_participant_repository');
+        $entity     = $this->app->make('config')->get('tenancy.domain_participant_class');
+
+        if ( $repository && $entity ) {
+            $this->app->singleton(DomainAwareTenantParticipantRepository::class,
+                function ($app) use ($repository, $entity) {
+                    return new DomainAwareTenantParticipantRepository(
+                        new $repository($app['em'], $app['em']->getClassMetaData($entity))
+                    );
+                }
+            );
+
+            $this->app->alias(DomainAwareTenantParticipantRepository::class, 'auth.tenant.domain_participant_repository');
+        }
     }
 
     /**

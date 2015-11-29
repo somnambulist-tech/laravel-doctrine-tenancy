@@ -19,8 +19,7 @@
 namespace Somnambulist\Tenancy;
 
 use Somnambulist\Tenancy\Contracts\TenantParticipant as TenantParticipantContract;
-use Doctrine\Common\Persistence\ObjectRepository;
-use Doctrine\ORM\EntityRepository;
+use Somnambulist\Tenancy\Contracts\TenantParticipantRepository as RepositoryContract;
 
 /**
  * Class TenantParticipantRepository
@@ -35,24 +34,26 @@ use Doctrine\ORM\EntityRepository;
  * @subpackage Somnambulist\Tenancy\TenantParticipantRepository
  * @author     Dave Redfern
  */
-class TenantParticipantRepository implements ObjectRepository
+class TenantParticipantRepository implements RepositoryContract
 {
 
     /**
-     * @var EntityRepository
+     * @var RepositoryContract
      */
     protected $repository;
+
 
 
     /**
      * Constructor.
      *
-     * @param EntityRepository $repository
+     * @param RepositoryContract $repository
      */
-    public function __construct(EntityRepository $repository)
+    public function __construct(RepositoryContract $repository)
     {
         $this->repository = $repository;
     }
+
 
 
     /**

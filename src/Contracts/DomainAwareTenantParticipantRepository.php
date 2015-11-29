@@ -19,17 +19,25 @@
 namespace Somnambulist\Tenancy\Contracts;
 
 /**
- * Interface BelongsToTenantParticipants
+ * Interface DomainAwareTenantParticipant
+ *
+ * Borrowed from Doctrine\Common\Persistence\ObjectRepository.
  *
  * @package    Somnambulist\Tenancy\Contracts
- * @subpackage Somnambulist\Tenancy\Contracts\BelongsToTenantParticipants
+ * @subpackage Somnambulist\Tenancy\Contracts\DomainAwareTenantParticipant
  * @author     Dave Redfern
  */
-interface BelongsToTenantParticipants
+interface DomainAwareTenantParticipantRepository extends TenantParticipantRepository
 {
 
     /**
-     * @return TenantParticipant[]
+     * Finds a single object by a set of criteria.
+     *
+     * Note: this should return NULL if not found.
+     *
+     * @param string $domain The domain to search for
+     *
+     * @return null|object The DomainAwareTenantParticipant.
      */
-    public function getTenantParticipants();
+    public function findOneByDomain($domain);
 }

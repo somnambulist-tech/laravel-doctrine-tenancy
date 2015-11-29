@@ -32,9 +32,9 @@ The tenant participant may be a polymorphic entity e.g.: one that uses single ta
 
 #### Tenant Participant Mapping
 
-Provides an alias to the tenant participant for easier referencing. Note: this is not a container
-alias but used internally for tagging routes. e.g.:
+Provides an alias to the tenant participant for easier referencing.
 
+_Note:_ this is not a container alias but used internally for tagging routes. e.g.:
 the participant class is \App\Entity\SomeType\TheActualInstanceClass and in the routes we want
 to restrict to this type. Instead of using the whole class name, it can be aliased to "short_name".
 
@@ -74,6 +74,120 @@ The provided security models are:
 
 Additional models can be implemented. The default configuration is closed, with no sharing.
 
+#### Domain Aware Tenant Participant
+
+A domain aware tenant participant adds support for a domain name to the interface. This allows
+the tenant information to be resolved from the current host name passed into the application.
+This is used with the TenantSiteResolver middleware.
+
+#### Domain Aware Tenant Participant Repository
+
+The repository for the domain aware tenant participants. It is separate to the tenant
+participant allowing separate instances to be used. Domain aware is used with the
+TenantSiteResolver middleware.
+
+### Forms of Tenancy
+
+This library provides the following tenant setups, in increasing order of complexity:
+
+ * single app, URI tenancy
+ * multi-site, domain name tenancy
+ * multi-site with URI tenancy
+
+#### Single App, URI Tenancy
+
+The simplest case is a single App, that all users register for and the tenancy is defined by
+the tenant_creator_id in the route URI. The tenancy is resolved on User login meaning that this
+offers the smallest impact in your application.
+
+If you need to serve static, non-tenant pages or your app does not need theming support, this is
+the preferred tenancy model.
+
+#### Multi-Site, Domain Name Tenancy
+
+Increasing in complexity, the next level is domain-name based tenancy. Multiple sites running from
+a single app folder. This is usually some form of white-labelling setup i.e. the same application
+is re-skinned with different branding but the underlying app is practically the same.
+
+_Note:_ this is a substantial increase in difficulty from single app tenancy. You will need to
+change the Application instance in /bootstrap/app.php to use:
+
+    Somnambulist\Tenancy\Foundation\TenantAwareApplication
+
+_Note:_ you must ensure that any caches you use can handle per-site caching.
+
+In addition, this form of tenancy requires a middleware to run all the time to resolve the current
+tenant information before any users login or the main app actually runs. If using a database for
+the tenant source, this could increase site overhead and a high-performance cache is highly
+recommended for production environments e.g.: APCu or an in memory-cache that persists between
+requests to reduce the overhead of the tenant resolution.
+
+A file-system repository can be easily created instead of using the database, or a combination of
+both where a cache file is generated when the tenant sources change.
+
+In multi-site, changes must be made to your app config:
+
+ * view.paths: should have the default path changed to views/default
+ * view.compiled: should have the default path changed to views/default
+
+When creating your app, you will need to create a "default" view theme and then mirror this for
+each domain you serve from the app. The view folder should be named after the domain that is
+bound to the tenant.
+
+    www.example.com -> resources/views/www.example.com
+
+Your views folder will end up looking like:
+
+    resources/views/default
+    resources/views/www.example.com
+    resources/views/store.example2.com
+    resources/views/store.example3.com
+
+Once the tenant information has been resolved, several updates are made to the container
+configuration:
+
+ * app.url is replaced with the current host domain (not resolved domain name)
+ * template paths are re-computed as a hierarchy and the finder reset
+
+Template path order is reset to:
+
+ * tenant creator domain
+ * tenant owner domain (if different)
+ * default / existing paths
+
+This way templates should be evaluated from most specific to least specific.
+
+_Note:_ auth.tenant is initialised with the tenant owner / creator and a NullUser.
+
+#### Multi-Site with URI tenancy
+
+_Note:_ this is most complex scenario. TenantAwareApplication is required.
+
+_Note:_ you must ensure that any caches you use can handle per-site caching.
+
+This is a combination of both methods where there are multiple tenants per multi-site. In this
+configuration there are limitations on the security that can be implemented unless a custom
+implementation is made:
+
+ * there is only one tenant owner per domain
+ * all tenant owners should have the closed security model
+ * all tenant creators should have the closed security model
+
+It is possible to allow further tenanting however this would have to be a custom implementation
+as your tenant creator would have to allow child tenants and implement a security model that is
+appropriate in this situation. One possible example would be to cascade up through the parents
+to set the tenant owner (which would be the domain tenant owner).
+
+This setup has the highest impact on site performance and requires users login to resolve their
+tenancy. As such, this essentially results in double tenancy resolution.
+
+This setup is not recommended as it could lead to hard to diagnose issues, but is included as it
+is technically feasible with the current implementation.
+
+_Note:_ auth.tenant is initialised with the tenant owner / creator and a NullUser but after
+User authentication will be updated with the current authenticated user and any changes to the
+creator tenant as needed.
+
 ### Requirements
 
  * PHP 5.5+
@@ -97,8 +211,11 @@ Install using composer, or checkout / pull the files from github.com.
  * create your User with tenancy support
  * create an App\Http\Controller\TenantController to handle the various tenant redirects
  * add the basic routes
- * add AuthenticateTenant as auth.tenant to HttpKernel route middlewares
- * if wanted, add EnsureTenantType as auth.tenant.type to HttpKernel route middlewares
+ * for multi-site:
+   * add TenantSiteResolver middleware to middleware, after CheckForMaintenanceMode
+ * for standard app tenancy and/or for tenancy within multi-site
+   * add AuthenticateTenant as auth.tenant to HttpKernel route middlewares
+   * if wanted, add EnsureTenantType as auth.tenant.type to HttpKernel route middlewares
 
 #### Doctrine Event Subscriber
 
@@ -174,7 +291,7 @@ require tenancy support / enforcement. These routes should be prefixed with at l
 middleware to validate that the creator belongs to the owner as well as the current user
 having access to the creator.
 
-Note: the user does not need access to the tenant owner, access to the tenant creator implies
+_Note:_ the user does not need access to the tenant owner, access to the tenant creator implies
 permission to access a sub-set of the data.
 
     // Tenant Aware Routes
@@ -342,8 +459,10 @@ as a namespaced "tenant" repository for our customer:
     }
 
 Now, the config/tenancy.php can be updated to add a repository config definition so this class
-will be automatically available in the container. Note: this step presumes the standard
-repository is already mapped to the container using the repository class as the key.
+will be automatically available in the container.
+
+_Note:_ this step presumes the standard repository is already mapped to the container using
+the repository class as the key.
 
     [
         'repository' => \App\Repository\TenantAware\CustomerRepository::class,
@@ -425,7 +544,7 @@ method:
 
 Additional schemes can be added as needed.
 
-Note: while in theory you can mix security models within a tenant e.g.: some children are
+_Note:_ while in theory you can mix security models within a tenant e.g.: some children are
 closed, others shared, some user; this may result in strange results or inconsistencies.
 It may lead to a large increase in duplicate records. It is up to you to manage this
 accordingly.
@@ -456,6 +575,14 @@ confused with standard routes.
 
 In addition any un-authenticated routes should be excluded from the tenancy group - unless you
 implement a tenant aware anonymous user (not recommended).
+
+### Multi-Site Routing
+
+In a multi-site setup you may want to have different routes per site. In this case you will need
+to modify your RouteServiceProvider to be tenant aware, and to use the resolved domain as the
+file name for the routes to load.
+
+
 
 ## Twig Extension
 

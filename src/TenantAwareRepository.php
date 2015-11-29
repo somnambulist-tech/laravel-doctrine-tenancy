@@ -77,9 +77,9 @@ abstract class TenantAwareRepository implements ObjectRepository
     /**
      * Constructor.
      *
-     * @param EntityManager      $em
-     * @param EntityRepository   $repository
-     * @param TenantContract $tenant
+     * @param EntityManager    $em
+     * @param EntityRepository $repository
+     * @param TenantContract   $tenant
      */
     public function __construct(EntityManager $em, EntityRepository $repository, TenantContract $tenant)
     {

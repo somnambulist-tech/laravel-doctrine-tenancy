@@ -19,17 +19,24 @@
 namespace Somnambulist\Tenancy\Contracts;
 
 /**
- * Interface BelongsToTenantParticipants
+ * Interface DomainAwareTenantParticipant
  *
  * @package    Somnambulist\Tenancy\Contracts
- * @subpackage Somnambulist\Tenancy\Contracts\BelongsToTenantParticipants
+ * @subpackage Somnambulist\Tenancy\Contracts\DomainAwareTenantParticipant
  * @author     Dave Redfern
  */
-interface BelongsToTenantParticipants
+interface DomainAwareTenantParticipant extends TenantParticipant
 {
 
     /**
-     * @return TenantParticipant[]
+     * @return string
      */
-    public function getTenantParticipants();
+    public function getDomain();
+
+    /**
+     * @param string $domain
+     *
+     * @return $this
+     */
+    public function setDomain($domain);
 }

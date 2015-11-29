@@ -16,20 +16,42 @@
  * and is licensed under the MIT license.
  */
 
-namespace Somnambulist\Tenancy\Contracts;
+namespace Somnambulist\Tenancy\Traits;
 
 /**
- * Interface BelongsToTenantParticipants
+ * Trait DomainAwareTenantParticipant
  *
- * @package    Somnambulist\Tenancy\Contracts
- * @subpackage Somnambulist\Tenancy\Contracts\BelongsToTenantParticipants
+ * @package    Somnambulist\Tenancy\Traits
+ * @subpackage Somnambulist\Tenancy\Traits\DomainAwareTenantParticipant
  * @author     Dave Redfern
  */
-interface BelongsToTenantParticipants
+trait DomainAwareTenantParticipant
 {
 
+    use TenantParticipant;
+
     /**
-     * @return TenantParticipant[]
+     * @var string
      */
-    public function getTenantParticipants();
+    protected $domain;
+
+    /**
+     * @return string
+     */
+    public function getDomain()
+    {
+        return $this->domain;
+    }
+
+    /**
+     * @param string $domain
+     *
+     * @return $this
+     */
+    public function setDomain($domain)
+    {
+        $this->domain = $domain;
+
+        return $this;
+    }
 }

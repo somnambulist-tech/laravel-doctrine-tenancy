@@ -19,6 +19,7 @@
 namespace Somnambulist\Tenancy\Http\Middleware;
 
 use Somnambulist\Tenancy\Contracts\BelongsToTenant as BelongsToTenantContract;
+use Somnambulist\Tenancy\Contracts\Tenant as TenantContract;
 use Somnambulist\Tenancy\Contracts\TenantParticipant as TenantParticipantContract;
 use Somnambulist\Tenancy\TenantParticipantRepository;
 use Closure;
@@ -70,12 +71,24 @@ class AuthenticateTenant
      */
     public function handle($request, Closure $next)
     {
-        $owner = $creator = null;
+        $owner  = $creator = null;
+        /** @var TenantContract $tenant */
+        $tenant = app('auth.tenant');
 
         /** @var TenantParticipantContract $owner */
         if (null !== $tenantOwnerId = $request->route('tenant_owner_id')) {
+            if ($tenant->getTenantOwnerId() && $tenantOwnerId != $tenant->getTenantOwnerId()) {
+                throw new \RuntimeException(
+                    sprintf(
+                        'tenant_owner_id "%s" in route parameters does not match the resolved owner "%s"',
+                        $tenantOwnerId, $tenant->getTenantOwnerId()
+                    )
+                );
+            }
+
             $owner = $this->repository->find($tenantOwnerId);
         }
+
         /** @var TenantParticipantContract $creator */
         if (null !== $tenantCreatorId = $request->route('tenant_creator_id')) {
             $creator = $this->repository->find($tenantCreatorId);
@@ -98,7 +111,7 @@ class AuthenticateTenant
         }
 
         // bind resolved tenant data to container
-        app('auth.tenant')->updateTenancy($user, $creator->getTenantOwner(), $creator);
+        $tenant->updateTenancy($user, $creator->getTenantOwner(), $creator);
 
         return $next($request);
     }
