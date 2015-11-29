@@ -19,8 +19,8 @@
 namespace Somnambulist\Tenancy\Http\Middleware;
 
 use Illuminate\View\FileViewFinder;
-use Somnambulist\Tenancy\Contracts\DomainAwareTenantParticipantRepository;
 use Somnambulist\Tenancy\Contracts\TenantParticipant;
+use Somnambulist\Tenancy\DomainAwareTenantParticipantRepository;
 use Somnambulist\Tenancy\Entity\NullUser;
 
 /**
