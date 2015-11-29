@@ -62,6 +62,7 @@ class TenantSiteResolver
         $domain = str_replace(app('config')->get('tenancy.ignorable_domain_components', []), '', $request->getHost());
         $tenant = $this->repository->findOneByDomain($domain);
         $config = app('config');
+        $view   = app('view');
         $paths  = [];
 
         if (!$tenant instanceof TenantParticipant) {
@@ -79,7 +80,7 @@ class TenantSiteResolver
         $config->set('view.paths', $paths);
 
         // replace ViewFinder in ViewManager with new instance with ordered paths
-        app('view')->setFinder(new FileViewFinder(app('files'), $paths));
+        $view->setFinder(new FileViewFinder(app('files'), $paths, $view->getFinder()->getExtensions()));
 
         // bind resolved tenant data to container
         app('auth.tenant')->updateTenancy(new NullUser(), $tenant->getTenantOwner(), $tenant);
