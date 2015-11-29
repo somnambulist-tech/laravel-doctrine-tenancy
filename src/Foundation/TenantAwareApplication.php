@@ -84,14 +84,4 @@ class TenantAwareApplication extends Application
     {
         return $this->basePath() . '/bootstrap/cache/' . $this->getTenantCacheName('compiled') . '.php';
     }
-
-    /**
-     * Get the path to the cached services.json file.
-     *
-     * @return string
-     */
-    public function getCachedServicesPath()
-    {
-        return $this->basePath() . '/bootstrap/cache/' . $this->getTenantCacheName('services') . '.json';
-    }
 }
