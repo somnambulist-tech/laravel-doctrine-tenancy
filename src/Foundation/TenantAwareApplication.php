@@ -20,6 +20,10 @@ namespace Somnambulist\Tenancy\Foundation;
 
 use Illuminate\Foundation\Application;
 use Somnambulist\Tenancy\Contracts\DomainAwareTenantParticipant;
+use Somnambulist\Tenancy\Contracts\Tenant as TenantContract;
+use Somnambulist\Tenancy\Entity\NullTenant;
+use Somnambulist\Tenancy\Entity\NullUser;
+use Somnambulist\Tenancy\Entity\Tenant;
 
 /**
  * Class TenantAwareApplication
@@ -32,6 +36,37 @@ use Somnambulist\Tenancy\Contracts\DomainAwareTenantParticipant;
  */
 class TenantAwareApplication extends Application
 {
+
+    /**
+     * Create a new Illuminate application instance.
+     *
+     * In tenant aware apps, the Tenant service needs to be registered extremely early in
+     * the application startup cycle. The only guaranteed way to do that is to bind it
+     * after the core services in the main Application. Then auth.tenant is available
+     * very early on, and the caches will auto-update after resolving the tenant later.
+     *
+     * @param string|null $basePath
+     */
+    public function __construct($basePath = null)
+    {
+        parent::__construct($basePath);
+
+        $this->registerBaseTenantBindings();
+    }
+
+    /**
+     * Register the root Tenant instance
+     *
+     * @return void
+     */
+    protected function registerBaseTenantBindings()
+    {
+        $this->singleton(TenantContract::class, function ($app) {
+            return new Tenant(new NullUser(), new NullTenant(), new NullTenant());
+        });
+
+        $this->alias(TenantContract::class, 'auth.tenant');
+    }
 
     /**
      * @return boolean

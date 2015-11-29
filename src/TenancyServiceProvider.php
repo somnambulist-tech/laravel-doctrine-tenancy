@@ -55,6 +55,7 @@ class TenancyServiceProvider extends ServiceProvider
     {
         $this->mergeConfig();
 
+        $this->registerTenantService();
         $this->registerAuthenticatorServices();
         $this->registerUrlGenerator();
         $this->registerTenantParticipantMappings();
@@ -75,6 +76,22 @@ class TenancyServiceProvider extends ServiceProvider
     }
 
     /**
+     * Registers the root Tenant instance
+     *
+     * @return void
+     */
+    protected function registerTenantService()
+    {
+        if (!$this->app->resolved(TenantContract::class)) {
+            $this->app->singleton(TenantContract::class, function ($app) {
+                return new Tenant(new NullUser(), new NullTenant(), new NullTenant());
+            });
+
+            $this->app->alias(TenantContract::class, 'auth.tenant');
+        }
+    }
+
+    /**
      * Register the tenancy authenticator services
      *
      * @return void
@@ -87,14 +104,10 @@ class TenancyServiceProvider extends ServiceProvider
         $this->app->singleton(TenantTypeResolver::class, function ($app) {
             return new TenantTypeResolver();
         });
-        $this->app->singleton(TenantContract::class, function ($app) {
-            return new Tenant(new NullUser(), new NullTenant(), new NullTenant());
-        });
 
         /* Aliases */
         $this->app->alias(TenantRedirectorService::class, 'auth.tenant.redirector');
         $this->app->alias(TenantTypeResolver::class, 'auth.tenant.type_resolver');
-        $this->app->alias(TenantContract::class, 'auth.tenant');
     }
 
     /**
