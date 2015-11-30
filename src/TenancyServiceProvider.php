@@ -66,6 +66,7 @@ class TenancyServiceProvider extends ServiceProvider
         $this->registerDomainAwareTenantParticipantRepository();
         $this->registerTenantAwareRepositories();
         $this->registerTwigExtension();
+        $this->registerConsoleCommands();
     }
 
 
