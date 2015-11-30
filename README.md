@@ -652,6 +652,25 @@ a config option to the main config/app.php file. The option is: app.route.namesp
 
 If left out, the default App\Http\Controller is used.
 
+#### Route Patterns
+
+Like the namespace, patterns can still be set by adding them to your config/app.php under
+app.route.patterns. This is an associative array of identifier and pattern. They are
+registered with the router when the routes are resolved.
+
+    <?php
+    // config/app.php
+    return [
+        // other stuff...
+        'route' => [
+            'namespace' => 'App\Http\Controller', // default
+            'patterns' => [
+                'id' => '[0-9]+',
+            ],
+        ],
+        // more stuff...
+    ];
+
 ## Twig Extension
 
 A Twig extension will be automatically loaded if Twig is detected in the container which will

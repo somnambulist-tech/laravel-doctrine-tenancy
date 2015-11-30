@@ -32,10 +32,15 @@ use Somnambulist\Tenancy\Contracts\Tenant;
  * This is actually a service provider and directly extends the RouteServiceProvider so
  * that there is a consistent setup of the router.
  *
- * As this is provided as a plugin middleware, the "namespace" property can now be set
- * via a new app config option:
+ * As the routes are now setup via a middleware, some of the configuration has had to be
+ * moved out to the config files. The following options have been added to config/app.php:
  *
  *  * app.route.namespace
+ *  * app.route.patterns
+ *
+ * app.route.namespace sets the namespace for your routes. The default is App\Http\Controller.
+ * app.route.patterns allows repeat patterns to be registered with the router. This is an
+ * array of key => patterns.
  *
  * Simply add a new section to your config/app.php named 'route' with a sub-key of 'namespace':
  *
@@ -43,9 +48,15 @@ use Somnambulist\Tenancy\Contracts\Tenant;
  * <?php
  * // in config/app.php
  * return [
+ *      // other stuff omitted
+ *
  *      'route' => [
  *          'namespace' => 'App\Http\Controllers',
+ *          'patterns' => [
+ *              'id' => '[0-9]+,
+ *          ],
  *      ],
+ *
  *      // other stuff omitted
  * ]
  * </code>
@@ -109,6 +120,10 @@ class TenantRouteResolver extends ServiceProvider
      */
     public function boot(Router $router)
     {
+        foreach ($this->app->make('config')->get('app.route.patterns', []) as $name => $pattern) {
+            $router->pattern($name, $pattern);
+        }
+
         parent::boot($router);
     }
 
