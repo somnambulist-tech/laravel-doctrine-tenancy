@@ -21,7 +21,7 @@ namespace Somnambulist\Tenancy\Http\Middleware;
 use Somnambulist\Tenancy\Contracts\BelongsToTenant as BelongsToTenantContract;
 use Somnambulist\Tenancy\Contracts\Tenant as TenantContract;
 use Somnambulist\Tenancy\Contracts\TenantParticipant as TenantParticipantContract;
-use Somnambulist\Tenancy\TenantParticipantRepository;
+use Somnambulist\Tenancy\Contracts\TenantParticipantRepository;
 use Closure;
 use Illuminate\Contracts\Auth\Guard;
 

@@ -19,8 +19,8 @@
 namespace Somnambulist\Tenancy\Http\Middleware;
 
 use Illuminate\View\FileViewFinder;
-use Somnambulist\Tenancy\Contracts\TenantParticipant;
-use Somnambulist\Tenancy\DomainAwareTenantParticipantRepository;
+use Somnambulist\Tenancy\Contracts\DomainAwareTenantParticipant;
+use Somnambulist\Tenancy\Contracts\DomainAwareTenantParticipantRepository;
 use Somnambulist\Tenancy\Entity\NullUser;
 
 /**
@@ -37,6 +37,7 @@ class TenantSiteResolver
      * @var DomainAwareTenantParticipantRepository
      */
     protected $repository;
+
 
 
     /**
@@ -65,7 +66,7 @@ class TenantSiteResolver
         $view   = app('view');
         $paths  = [];
 
-        if (!$tenant instanceof TenantParticipant) {
+        if (!$tenant instanceof DomainAwareTenantParticipant) {
             throw new \RuntimeException(
                 sprintf('Unable to resolve host "%s" to valid TenantParticipant.', $domain)
             );

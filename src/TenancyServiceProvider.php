@@ -18,6 +18,8 @@
 
 namespace Somnambulist\Tenancy;
 
+use Somnambulist\Tenancy\Contracts\DomainAwareTenantParticipantRepository as DomainTenantRepositoryContract;
+use Somnambulist\Tenancy\Contracts\TenantParticipantRepository as TenantRepositoryContract;
 use Somnambulist\Tenancy\Contracts\Tenant as TenantContract;
 use Somnambulist\Tenancy\Entity\NullTenant;
 use Somnambulist\Tenancy\Entity\NullUser;
@@ -167,13 +169,13 @@ class TenancyServiceProvider extends ServiceProvider
         $repository = $this->app->make('config')->get('tenancy.participant_repository');
         $entity     = $this->app->make('config')->get('tenancy.participant_class');
 
-        $this->app->singleton(TenantParticipantRepository::class, function ($app) use ($repository, $entity) {
+        $this->app->singleton(TenantRepositoryContract::class, function ($app) use ($repository, $entity) {
             return new TenantParticipantRepository(
                 new $repository($app['em'], $app['em']->getClassMetaData($entity))
             );
         });
 
-        $this->app->alias(TenantParticipantRepository::class, 'auth.tenant.participant_repository');
+        $this->app->alias(TenantRepositoryContract::class, 'auth.tenant.participant_repository');
     }
 
     /**
@@ -185,7 +187,7 @@ class TenancyServiceProvider extends ServiceProvider
         $entity     = $this->app->make('config')->get('tenancy.domain_participant_class');
 
         if ( $repository && $entity ) {
-            $this->app->singleton(DomainAwareTenantParticipantRepository::class,
+            $this->app->singleton(DomainTenantRepositoryContract::class,
                 function ($app) use ($repository, $entity) {
                     return new DomainAwareTenantParticipantRepository(
                         new $repository($app['em'], $app['em']->getClassMetaData($entity))
@@ -193,7 +195,7 @@ class TenancyServiceProvider extends ServiceProvider
                 }
             );
 
-            $this->app->alias(DomainAwareTenantParticipantRepository::class, 'auth.tenant.domain_participant_repository');
+            $this->app->alias(DomainTenantRepositoryContract::class, 'auth.tenant.domain_participant_repository');
         }
     }
 
@@ -234,7 +236,7 @@ class TenancyServiceProvider extends ServiceProvider
     {
         if ( $this->app->resolved('twig') ) {
             $this->app->singleton(TenantExtension::class, function ($app) {
-                return new TenantExtension($app[TenantParticipantRepository::class], $app['auth.tenant']);
+                return new TenantExtension($app[TenantRepositoryContract::class], $app['auth.tenant']);
             });
 
             $this->app['twig']->addExtension($this->app[TenantExtension::class]);

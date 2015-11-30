@@ -20,7 +20,7 @@ namespace Somnambulist\Tenancy\Twig;
 
 use Somnambulist\Tenancy\Contracts\Tenant as TenantContract;
 use Somnambulist\Tenancy\Contracts\TenantAware as TenantAwareContract;
-use Somnambulist\Tenancy\TenantParticipantRepository;
+use Somnambulist\Tenancy\Contracts\TenantParticipantRepository;
 use Twig_Extension;
 use Twig_SimpleFunction;
 

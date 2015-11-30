@@ -76,3 +76,4 @@ Temporary Items
 /vendor/
 /bin/
 tests/_output/*
+composer.lock

@@ -29,6 +29,11 @@ interface DomainAwareTenantParticipant extends TenantParticipant
 {
 
     /**
+     * @return DomainAwareTenantParticipant
+     */
+    public function getTenantOwner();
+
+    /**
      * @return string
      */
     public function getDomain();
