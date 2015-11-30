@@ -35,7 +35,7 @@ interface TenantParticipantRepository
      *
      * @param mixed $id The identifier.
      *
-     * @return object The object.
+     * @return TenantParticipant The tenant participant object.
      */
     public function find($id);
 
@@ -69,7 +69,7 @@ interface TenantParticipantRepository
      *
      * @param array $criteria The criteria.
      *
-     * @return object The object.
+     * @return TenantParticipant The tenant participant object.
      */
     public function findOneBy(array $criteria);
 

@@ -24,10 +24,10 @@ use Somnambulist\Tenancy\Contracts\DomainAwareTenantParticipantRepository;
 use Somnambulist\Tenancy\Entity\NullUser;
 
 /**
- * Class TenantSiteResolverMiddleware
+ * Class TenantSiteResolver
  *
- * @package    App\Http\Middleware
- * @subpackage App\Http\Middleware\TenantSiteResolverMiddleware
+ * @package    Somnambulist\Tenancy\Http\Middleware
+ * @subpackage Somnambulist\Tenancy\Http\Middleware\TenantSiteResolver
  * @author     Dave Redfern
  */
 class TenantSiteResolver

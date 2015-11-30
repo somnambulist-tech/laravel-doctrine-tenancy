@@ -18,6 +18,7 @@
 
 namespace Somnambulist\Tenancy;
 
+use Somnambulist\Tenancy\Console;
 use Somnambulist\Tenancy\Contracts\DomainAwareTenantParticipantRepository as DomainTenantRepositoryContract;
 use Somnambulist\Tenancy\Contracts\TenantParticipantRepository as TenantRepositoryContract;
 use Somnambulist\Tenancy\Contracts\Tenant as TenantContract;
@@ -256,11 +257,39 @@ class TenancyServiceProvider extends ServiceProvider
     }
 
     /**
+     * @return boolean
+     */
+    protected function hasMultiSiteTenancy()
+    {
+        $repository = $this->app->make('config')->get('tenancy.domain_participant_repository');
+        $entity     = $this->app->make('config')->get('tenancy.domain_participant_class');
+
+        return ($repository && $entity);
+    }
+
+    /**
      * @return string
      */
     protected function getConfigPath()
     {
         return __DIR__ . '/../config/tenancy.php';
+    }
+
+    /**
+     * Register console commands
+     */
+    protected function registerConsoleCommands()
+    {
+        if ( $this->hasMultiSiteTenancy() ) {
+            $this->commands(
+                [
+                    Console\TenantListCommand::class,
+                    Console\TenantRouteListCommand::class,
+                    Console\TenantRouteCacheCommand::class,
+                    Console\TenantRouteClearCommand::class,
+                ]
+            );
+        }
     }
 
     /**
@@ -273,6 +302,7 @@ class TenancyServiceProvider extends ServiceProvider
             'auth.tenant.type_resolver',
             'auth.tenant.redirector',
             'auth.tenant.participant_repository',
+            'auth.tenant.domain_participant_repository',
         ];
     }
 }

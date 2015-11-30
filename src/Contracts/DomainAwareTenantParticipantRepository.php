@@ -37,7 +37,7 @@ interface DomainAwareTenantParticipantRepository extends TenantParticipantReposi
      *
      * @param string $domain The domain to search for
      *
-     * @return null|object The DomainAwareTenantParticipant.
+     * @return null|DomainAwareTenantParticipant The tenant participant object.
      */
     public function findOneByDomain($domain);
 }

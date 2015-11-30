@@ -30,8 +30,8 @@ use Somnambulist\Tenancy\Entity\Tenant;
  *
  * Adds tenant awareness to the core Application so the cache files can be uniquely named.
  *
- * @package    App\Support
- * @subpackage App\Support\TenantAwareApplication
+ * @package    Somnambulist\Tenancy\Foundation
+ * @subpackage Somnambulist\Tenancy\Foundation\TenantAwareApplication
  * @author     Dave Redfern
  */
 class TenantAwareApplication extends Application

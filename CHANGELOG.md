@@ -1,6 +1,24 @@
 Change Log
 ==========
 
+2015-11-30
+----------
+
+Changed:
+
+ * Added missing composer dependency on Laravel 5.1+
+ * Minor docblock comment alterations for better IDE auto-completion
+ * Fix incorrect license details, this library is MIT licensed.
+
+Added:
+
+ * Tenant console commands for listing tenants and handling routes
+   * tenant:list
+   * tenant:route:list
+   * tenant:route:cache
+   * tenant:route:clear
+ * TenantRouteResolver for importing routes
+
 2015-11-29
 ----------
 

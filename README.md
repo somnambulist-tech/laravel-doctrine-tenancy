@@ -114,6 +114,8 @@ change the Application instance in /bootstrap/app.php to use:
 
     Somnambulist\Tenancy\Foundation\TenantAwareApplication
 
+_Note:_ you have to remove RouteServiceProvider and add TenantRouteResolver middleware.
+
 _Note:_ you must ensure that any caches you use can handle per-site caching.
 
 In addition, this form of tenancy requires a middleware to run all the time to resolve the current
@@ -163,6 +165,8 @@ _Note:_ auth.tenant is initialised with the tenant owner / creator and a NullUse
 
 _Note:_ this is most complex scenario. TenantAwareApplication is required.
 
+_Note:_ you have to remove RouteServiceProvider and add TenantRouteResolver middleware.
+
 _Note:_ you must ensure that any caches you use can handle per-site caching.
 
 This is a combination of both methods where there are multiple tenants per multi-site. In this
@@ -185,8 +189,9 @@ This setup is not recommended as it could lead to hard to diagnose issues, but i
 is technically feasible with the current implementation.
 
 _Note:_ auth.tenant is initialised with the tenant owner / creator and a NullUser but after
-User authentication will be updated with the current authenticated user and any changes to the
-creator tenant as needed.
+User authentication will be updated with the current, authenticated user and any changes to the
+creator tenant as needed. The owner tenant should still be the same as the creator must be a
+child of the owner.
 
 ### Requirements
 
@@ -211,11 +216,16 @@ Install using composer, or checkout / pull the files from github.com.
  * create your User with tenancy support
  * create an App\Http\Controller\TenantController to handle the various tenant redirects
  * add the basic routes
- * for multi-site:
-   * add TenantSiteResolver middleware to middleware, after CheckForMaintenanceMode
+ * for multi-site
+   * in bootstrap/app.php
+     * change Application instance to \Somnambulist\Tenancy\Foundation\TenantAwareApplication
+   * in HttpKernel:
+     * add TenantSiteResolver middleware to middleware, after CheckForMaintenanceMode
+     * add TenantRouteResolver middleware to middleware, after TenantSiteResolver
+     * remove RouteServiceProvider from config/app.php
  * for standard app tenancy and/or for tenancy within multi-site
    * add AuthenticateTenant as auth.tenant to HttpKernel route middlewares
-   * if wanted, add EnsureTenantType as auth.tenant.type to HttpKernel route middlewares
+   * add EnsureTenantType as auth.tenant.type to HttpKernel route middlewares
 
 #### Doctrine Event Subscriber
 
@@ -579,10 +589,68 @@ implement a tenant aware anonymous user (not recommended).
 ### Multi-Site Routing
 
 In a multi-site setup you may want to have different routes per site. In this case you will need
-to modify your RouteServiceProvider to be tenant aware, and to use the resolved domain as the
-file name for the routes to load.
+to remove your RouteServiceProvider entirely and switch it for the TenantRouteResolver middleware.
+Then you will need to either create per tenant domain route files (which can include() shared
+routes) or symlink the files if you wish to use the exact same routes.
 
+A middleware is provided to handle loading the routes for a multi-site setup. This must be loaded
+after the TenantSiteResolver, but before any other middlewares. In addition you must disable / remove
+the default App/Providers/RouteServiceProvider. This provider is registered too early and must be
+delayed / resolved via the TenantRouteResolver instead.
 
+_Note:_ these are **not** route middlewares but Kernel middlewares.
+
+Your Kernel.php will end up looking like the following:
+
+    class Kernel extends HttpKernel
+    {
+        protected $middleware = [
+            \Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode::class,
+
+            // must appear AFTER maintenance mode, but before everything else
+            \Somnambulist\Tenancy\Http\Middleware\TenantSiteResolver::class,
+            \Somnambulist\Tenancy\Http\Middleware\TenantRouteResolver::class,
+
+            \App\Http\Middleware\EncryptCookies::class,
+            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+            \Illuminate\Session\Middleware\StartSession::class,
+            \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+            \App\Http\Middleware\VerifyCsrfToken::class,
+        ];
+
+        protected $routeMiddleware = [
+            'auth' => \App\Http\Middleware\Authenticate::class,
+            'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
+            'auth.tenant' => \Somnambulist\Tenancy\Http\Middleware\AuthenticateTenant::class,
+            'auth.tenant.type' => \Somnambulist\Tenancy\Http\Middleware\EnsureTenantType::class,
+            'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
+        ];
+    }
+
+The auth.tenant / auth.tenant.type are optional in multi-site, but should likely be included.
+
+Again: ensure that the previous RouteServiceProvider in config/app.php has been removed.
+
+_Note:_ you must **not** use the standard route:list, route:cache in a multi-site setup. Tenant
+aware versions of these commands are automatically registered if a multi-site setup is detected
+in the configuration settings.
+
+#### Route Namespace
+
+When using the TenantRouteResolver, you can still specify the route namespace by adding
+a config option to the main config/app.php file. The option is: app.route.namespace:
+
+    <?php
+    // config/app.php
+    return [
+        // other stuff...
+        'route' => [
+            'namespace' => 'App\Http\Controller', // default
+        ],
+        // more stuff...
+    ];
+
+If left out, the default App\Http\Controller is used.
 
 ## Twig Extension
 
@@ -601,13 +669,16 @@ on TenantAware entities.
 
 ## Views
 
-The bundle TenantController expects to find views under:
+The bundled TenantController expects to find views under:
 
  * /resources/views/tenant
  * /resources/views/tenant/error
 
 These are not included as they require application implementation. The TenantController class
 has information about file names and route mappings.
+
+In multi-site, these will need placing in appropriate sub-folders / duplicating where
+necessary.
 
 ## Potential Issues
 

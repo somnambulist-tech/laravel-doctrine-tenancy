@@ -18,9 +18,14 @@
   },
   "require": {
     "php": ">=5.5.0",
-    "eloquent/enumeration": "5.1.1",
+    "eloquent/enumeration": "5.1.*",
+    "laravel/laravel": "5.1.*",
     "laravel-doctrine/orm": "1.0.*",
     "somnambulist/laravel-doctrine-behaviours": "0.2.*"
+  },
+  "suggest": {
+    "rcrowe/twigbridge": "Twig integration for the Twig extension, ~0.9.*",
+    "twig/extensions": "Additional useful Twig extensions ~1.3.0"
   },
   "require-dev": {
 

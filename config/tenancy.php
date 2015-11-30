@@ -72,9 +72,10 @@ return [
      * Format is:
      *
      * [
-     *     'repository => '\App\Repo\Tenant\MyRepo',
-     *     'base' => '\App\Repo\MyRepo',
-     *     'alias' => 'tenant.my_repo', 'tags' => ['tenant_aware']
+     *     'repository' => '\App\Repo\Tenant\MyRepo',
+     *     'base'       => '\App\Repo\MyRepo',
+     *     'alias'      => 'tenant.my_repo',
+     *     'tags'       => ['tenant_aware']
      * ]
      */
     'repositories' => [],
