@@ -241,7 +241,7 @@ abstract class TenantAwareRepository implements ObjectRepository
      * not supported.
      *
      * @param array      $criteria
-     * @param array|null $orderBy
+     * @param array|null $orderBy  ['field', 'ASC|DESC']
      * @param int|null   $limit
      * @param int|null   $offset
      *
@@ -252,7 +252,8 @@ abstract class TenantAwareRepository implements ObjectRepository
     public function findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
     {
         $qb = $this->createQueryBuilder('o');
-        $qb->setFirstResult($offset)->setMaxResults($limit);
+        if (null !== $offset) $qb->setFirstResult($offset);
+        if (null !== $limit)  $qb->setMaxResults($limit);
 
         $this->applyCriteriaAndOrderByToQueryBuilder($qb, $criteria, $orderBy);
 
@@ -263,7 +264,7 @@ abstract class TenantAwareRepository implements ObjectRepository
      * Finds a single entity by a set of criteria.
      *
      * @param array      $criteria
-     * @param array|null $orderBy
+     * @param array|null $orderBy  ['field', 'ASC|DESC']
      *
      * @return object|null The entity instance or NULL if the entity can not be found.
      */
@@ -296,7 +297,7 @@ abstract class TenantAwareRepository implements ObjectRepository
     protected function applyCriteriaAndOrderByToQueryBuilder(QueryBuilder $qb, array $criteria, array $orderBy = null)
     {
         if (null !== $orderBy) {
-            $qb->addOrderBy($orderBy[0], $orderBy[1]);
+            $qb->addOrderBy('o.' . $orderBy[0], $orderBy[1]);
         }
 
         foreach ($criteria as $key => $value) {
