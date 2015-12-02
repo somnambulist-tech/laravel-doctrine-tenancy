@@ -49,8 +49,6 @@ class TenancyServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->publishes([ $this->getConfigPath() => config_path('tenancy.php'), ], 'config');
-
-        $this->registerTenantTwigExtension();
     }
 
     /**
@@ -88,25 +86,6 @@ class TenancyServiceProvider extends ServiceProvider
     protected function mergeConfig()
     {
         $this->mergeConfigFrom($this->getConfigPath(), 'tenancy');
-    }
-
-    /**
-     * If twig is enabled, register the extension
-     *
-     * @return void
-     */
-    protected function registerTenantTwigExtension()
-    {
-        if ($this->app->bound('twig')) {
-            $this->app->singleton(
-                TenantExtension::class,
-                function ($app) {
-                    return new TenantExtension($app['auth.tenant']);
-                }
-            );
-
-            $this->app['twig']->addExtension($this->app[TenantExtension::class]);
-        }
     }
 
     /**

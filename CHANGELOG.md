@@ -17,6 +17,7 @@ Changed:
  * Renamed aliases of tenant repositories:
    * auth.tenant.participant_repository => auth.tenant.account_repository
    * auth.tenant.domain_participant_repository => auth.tenant.site_repository
+ * Removed automatic Twig extension loading as it was causing problems
 
 
 2015-11-30

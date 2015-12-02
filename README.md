@@ -681,8 +681,8 @@ registered with the router when the routes are resolved.
 
 ## Twig Extension
 
-A Twig extension will be automatically loaded if Twig is detected in the container which will
-provide the following template functions:
+A Twig extension is provided that can be added to the config/twigbridge.php extensions. This adds
+the following template functions:
 
  * current_tenant_owner_id
  * current_tenant_creator_id
