@@ -90,17 +90,17 @@ TenantSiteResolver middleware.
 
 This library provides the following tenant setups, in increasing order of complexity:
 
- * single app, URI tenancy
+ * multi-account (single App), URI tenancy
  * multi-site, domain name tenancy
- * multi-site with URI tenancy
+ * multi-site with multi-account tenancy
 
-#### Single App, URI Tenancy
+#### Multi-Account, URI Tenancy
 
-The simplest case is a single App, that all users register for and the tenancy is defined by
-the tenant_creator_id in the route URI. The tenancy is resolved on User login meaning that this
-offers the smallest impact in your application.
+The simplest case is a single App that has multi-account tenants. All users must be registered
+and the tenancy is defined by the tenant_creator_id in the route URI. The tenancy is resolved
+on User login meaning that this offers the smallest impact in your application.
 
-If you need to serve static, non-tenant pages or your app does not need theming support, this is
+If you need to serve static, non-tenant pages or your app does not need theme support, this is
 the preferred tenancy model.
 
 #### Multi-Site, Domain Name Tenancy
@@ -161,7 +161,7 @@ This way templates should be evaluated from most specific to least specific.
 
 _Note:_ auth.tenant is initialised with the tenant owner / creator and a NullUser.
 
-#### Multi-Site with URI tenancy
+#### Multi-Site with Multi-Account Tenancy
 
 _Note:_ this is most complex scenario. TenantAwareApplication is required.
 
@@ -219,6 +219,7 @@ Install using composer, or checkout / pull the files from github.com.
  * for multi-site
    * in bootstrap/app.php
      * change Application instance to \Somnambulist\Tenancy\Foundation\TenantAwareApplication
+     * _Note:_ if multi-site is enabled and this changed not made, an exception will be raised.
    * in HttpKernel:
      * add TenantSiteResolver middleware to middleware, after CheckForMaintenanceMode
      * add TenantRouteResolver middleware to middleware, after TenantSiteResolver
@@ -396,7 +397,7 @@ the Doctrine mapping file. Here is an example yaml file:
         repositoryClass: App\Repository\CustomerRepository
 
         uniqueConstraints:
-            uniq_users_uuid:
+            uniq_customers_uuid:
                 columns: [ uuid ]
 
         id:
@@ -434,6 +435,8 @@ the Doctrine mapping file. Here is an example yaml file:
                 type: datetime
 
 #### Tenant Aware Repositories
+
+_Note:_ applies to Doctrine only.
 
 Tenant aware repositories simply wrap an existing entity repository with the standard
 repository interface. They should be defined and created as we actually want to be
@@ -627,7 +630,8 @@ Your Kernel.php will end up looking like the following:
         ];
     }
 
-The auth.tenant / auth.tenant.type are optional in multi-site, but should likely be included.
+The auth.tenant / auth.tenant.type are optional in multi-site, and should only be included if
+you are using multi-account tenancy.
 
 Again: ensure that the previous RouteServiceProvider in config/app.php has been removed.
 
@@ -637,15 +641,17 @@ in the configuration settings.
 
 #### Route Namespace
 
-When using the TenantRouteResolver, you can still specify the route namespace by adding
-a config option to the main config/app.php file. The option is: app.route.namespace:
+When using the TenantRouteResolver, you must specify the route namespace in the tenancy config
+file under the multi_site configuration block:
 
     <?php
     // config/app.php
     return [
         // other stuff...
-        'route' => [
-            'namespace' => 'App\Http\Controller', // default
+        'multi_site' => [
+            'router' => [
+                'namespace' => 'App\Http\Controller', // default
+            ],
         ],
         // more stuff...
     ];
@@ -654,18 +660,20 @@ If left out, the default App\Http\Controller is used.
 
 #### Route Patterns
 
-Like the namespace, patterns can still be set by adding them to your config/app.php under
-app.route.patterns. This is an associative array of identifier and pattern. They are
+Like the namespace, patterns can still be set by adding them to your config/tenancy.php under
+multi_site.router.patterns. This is an associative array of identifier and pattern. They are
 registered with the router when the routes are resolved.
 
     <?php
     // config/app.php
     return [
         // other stuff...
-        'route' => [
-            'namespace' => 'App\Http\Controller', // default
-            'patterns' => [
-                'id' => '[0-9]+',
+        'multi_site' => [
+            'router' => [
+                'namespace' => 'App\Http\Controller', // default
+                'patterns' => [
+                    'id' => '[0-9]+',
+                ],
             ],
         ],
         // more stuff...
@@ -680,11 +688,14 @@ provide the following template functions:
  * current_tenant_creator_id
  * current_tenant_owner
  * current_tenant_creator
- * get_entity_tenant_owner
- * get_entity_tenant_creator
+ * current_tenant_security_model
 
-This allows access to the current, active Tenant instance and to query for the owner/creator
-on TenantAware entities.
+This allows access to the current resolved Tenant instance.
+
+_Note:_ in a previous iteration, this included functions to look up tenant owner/creator from
+a repository, however: as the tenant could be domain aware or standard tenant, you do not
+know which repository to use so it was removed. Further: this information almost certainly
+should not be being pulled in a standard view anyway.
 
 ## Views
 

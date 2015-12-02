@@ -60,10 +60,10 @@ class TenantSiteResolver
      */
     public function handle($request, \Closure $next)
     {
-        $domain = str_replace(app('config')->get('tenancy.ignorable_domain_components', []), '', $request->getHost());
-        $tenant = $this->repository->findOneByDomain($domain);
         $config = app('config');
         $view   = app('view');
+        $domain = str_replace($config->get('tenancy.multi_site.ignorable_domain_components', []), '', $request->getHost());
+        $tenant = $this->repository->findOneByDomain($domain);
         $paths  = [];
 
         if (!$tenant instanceof DomainAwareTenantParticipant) {

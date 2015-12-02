@@ -33,27 +33,26 @@ use Somnambulist\Tenancy\Contracts\Tenant;
  * that there is a consistent setup of the router.
  *
  * As the routes are now setup via a middleware, some of the configuration has had to be
- * moved out to the config files. The following options have been added to config/app.php:
+ * moved out to the config files. The following options have been added to config/tenancy.php:
  *
- *  * app.route.namespace
- *  * app.route.patterns
+ *  * multi_site.router.namespace
+ *  * multi_site.router.patterns
  *
- * app.route.namespace sets the namespace for your routes. The default is App\Http\Controller.
- * app.route.patterns allows repeat patterns to be registered with the router. This is an
+ * router.namespace sets the namespace for your routes. The default is App\Http\Controller.
+ * router.patterns allows repeat patterns to be registered with the router. This is an
  * array of key => patterns.
- *
- * Simply add a new section to your config/app.php named 'route' with a sub-key of 'namespace':
  *
  * <code>
  * <?php
- * // in config/app.php
+ * // in config/tenancy.php
  * return [
  *      // other stuff omitted
- *
- *      'route' => [
- *          'namespace' => 'App\Http\Controllers',
- *          'patterns' => [
- *              'id' => '[0-9]+,
+ *      'multi_site' => [
+ *          'router' => [
+ *              'namespace' => 'App\Http\Controllers',
+ *              'patterns' => [
+ *                  'id' => '[0-9]+,
+ *              ],
  *          ],
  *      ],
  *
@@ -93,7 +92,7 @@ class TenantRouteResolver extends ServiceProvider
     {
         parent::__construct($app);
 
-        $this->namespace = $app->make('config')->get('app.route.namespace', 'App\Http\Controllers');
+        $this->namespace = $app->make('config')->get('tenancy.multi_site.router.namespace', 'App\Http\Controllers');
     }
 
     /**
@@ -120,7 +119,7 @@ class TenantRouteResolver extends ServiceProvider
      */
     public function boot(Router $router)
     {
-        foreach ($this->app->make('config')->get('app.route.patterns', []) as $name => $pattern) {
+        foreach ($this->app->make('config')->get('tenancy.multi_site.router.patterns', []) as $name => $pattern) {
             $router->pattern($name, $pattern);
         }
 

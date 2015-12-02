@@ -1,6 +1,24 @@
 Change Log
 ==========
 
+2015-12-02
+----------
+
+Changed:
+
+ * Config structures re-done to be more explicit / consistent
+   * tenancy.multi_account
+   * tenancy.multi_site
+   * tenancy is by default disabled and must be enabled
+ * Moved app.route. config to tenancy.multi_site.router as it is multi-site config
+ * Moved tenancy.ignorable_domain_components into multi_site config
+ * Refactored TenancyServiceProvider to actively check the Application instance
+ * Refactored TwigExtension to remove TenantParticipantRepository
+ * Renamed aliases of tenant repositories:
+   * auth.tenant.participant_repository => auth.tenant.account_repository
+   * auth.tenant.domain_participant_repository => auth.tenant.site_repository
+
+
 2015-11-30
 ----------
 

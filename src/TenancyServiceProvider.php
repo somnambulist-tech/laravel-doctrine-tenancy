@@ -18,6 +18,7 @@
 
 namespace Somnambulist\Tenancy;
 
+use Illuminate\Config\Repository;
 use Somnambulist\Tenancy\Console;
 use Somnambulist\Tenancy\Contracts\DomainAwareTenantParticipantRepository as DomainTenantRepositoryContract;
 use Somnambulist\Tenancy\Contracts\TenantParticipantRepository as TenantRepositoryContract;
@@ -25,6 +26,7 @@ use Somnambulist\Tenancy\Contracts\Tenant as TenantContract;
 use Somnambulist\Tenancy\Entity\NullTenant;
 use Somnambulist\Tenancy\Entity\NullUser;
 use Somnambulist\Tenancy\Entity\Tenant;
+use Somnambulist\Tenancy\Foundation\TenantAwareApplication;
 use Somnambulist\Tenancy\Routing\UrlGenerator;
 use Somnambulist\Tenancy\Twig\TenantExtension;
 use Illuminate\Support\ServiceProvider;
@@ -58,15 +60,23 @@ class TenancyServiceProvider extends ServiceProvider
     {
         $this->mergeConfig();
 
-        $this->registerTenantService();
-        $this->registerAuthenticatorServices();
-        $this->registerUrlGenerator();
-        $this->registerTenantParticipantMappings();
-        $this->registerTenantParticipantRepository();
-        $this->registerDomainAwareTenantParticipantRepository();
-        $this->registerTenantAwareRepositories();
-        $this->registerTwigExtension();
-        $this->registerConsoleCommands();
+        /** @var Repository $config */
+        $config = $this->app->make('config');
+
+        if (
+            !$config->get('tenancy.multi_account.enabled', false) &&
+            !$config->get('tenancy.multi_site.enabled', false)
+        ) {
+            return;
+        }
+
+        $this->registerTenantCoreServices($config);
+        $this->registerTenantAwareUrlGenerator($config);
+        $this->registerTenantTwigExtension($config);
+
+        $this->registerMultiAccountTenancy($config);
+        $this->registerMultiSiteTenancy($config);
+        $this->registerTenantAwareRepositories($config);
     }
 
 
@@ -80,28 +90,23 @@ class TenancyServiceProvider extends ServiceProvider
     }
 
     /**
-     * Registers the root Tenant instance
+     * Registers the core Tenant services
+     *
+     * @param Repository $config
      *
      * @return void
      */
-    protected function registerTenantService()
+    protected function registerTenantCoreServices(Repository $config)
     {
         if (!$this->app->resolved(TenantContract::class)) {
+            // might be registered by TenantAwareApplication already
             $this->app->singleton(TenantContract::class, function ($app) {
                 return new Tenant(new NullUser(), new NullTenant(), new NullTenant());
             });
 
             $this->app->alias(TenantContract::class, 'auth.tenant');
         }
-    }
 
-    /**
-     * Register the tenancy authenticator services
-     *
-     * @return void
-     */
-    protected function registerAuthenticatorServices()
-    {
         $this->app->singleton(TenantRedirectorService::class, function ($app) {
             return new TenantRedirectorService();
         });
@@ -111,23 +116,24 @@ class TenancyServiceProvider extends ServiceProvider
 
         /* Aliases */
         $this->app->alias(TenantRedirectorService::class, 'auth.tenant.redirector');
-        $this->app->alias(TenantTypeResolver::class, 'auth.tenant.type_resolver');
+        $this->app->alias(TenantTypeResolver::class,      'auth.tenant.type_resolver');
     }
 
     /**
      * Register the URL generator service.
      *
+     * Copy of the Laravel URL generator registering steps
+     *
+     * @param Repository $config
+     *
      * @return void
      */
-    protected function registerUrlGenerator()
+    protected function registerTenantAwareUrlGenerator(Repository $config)
     {
         $this->app['url'] = $this->app->share(
             function ($app) {
                 $routes = $app['router']->getRoutes();
 
-                // The URL generator needs the route collection that exists on the router.
-                // Keep in mind this is an object, so we're passing by references here
-                // and all the registered routes will be available to the generator.
                 $app->instance('routes', $routes);
 
                 $url = new UrlGenerator(
@@ -138,9 +144,6 @@ class TenancyServiceProvider extends ServiceProvider
                     return $this->app['session'];
                 });
 
-                // If the route collection is "rebound", for example, when the routes stay
-                // cached for the application, we will need to rebind the routes on the
-                // URL generator instance so it has the latest version of the routes.
                 $app->rebinding('routes', function ($app, $routes) {
                     $app['url']->setRoutes($routes);
                 });
@@ -151,25 +154,92 @@ class TenancyServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register the participant mapping aliases
+     * If twig is enabled, register the extension
+     *
+     * @param Repository $config
      *
      * @return void
      */
-    protected function registerTenantParticipantMappings()
+    protected function registerTenantTwigExtension(Repository $config)
+    {
+        if ( $this->app->resolved('twig') ) {
+            $this->app->singleton(TenantExtension::class, function ($app) {
+                return new TenantExtension($app['auth.tenant']);
+            });
+
+            $this->app['twig']->addExtension($this->app[TenantExtension::class]);
+        }
+    }
+
+    /**
+     * Set-up multi-account tenancy services
+     *
+     * @param Repository $config
+     */
+    protected function registerMultiAccountTenancy(Repository $config)
+    {
+        if (!$config->get('tenancy.multi_account.enabled', false)) {
+            return;
+        }
+
+        $this->registerMultiAccountTenancy($config);
+        $this->registerTenantParticipantMappings($config->get('tenancy.multi_account.participant.mappings'));
+    }
+
+    /**
+     * Set-up and check the app for multi-site tenancy
+     *
+     * @param Repository $config
+     */
+    protected function registerMultiSiteTenancy(Repository $config)
+    {
+        if (!$config->get('tenancy.multi_site.enabled', false)) {
+            return;
+        }
+
+        if (!$this->app instanceof TenantAwareApplication) {
+            throw new \RuntimeException(
+                'Multi-site requires updating your bootstrap/app.php to use TenantAwareApplication'
+            );
+        }
+
+        /*
+         * @todo Need a way to detect if RouteServiceProvider (or at least an instance of
+         *       Foundation\RouteServiceProvider) has been registered and to fail with a
+         *       warning if so.
+         */
+
+        $this->registerMultiSiteTenancy($config);
+        $this->registerMultiSiteConsoleCommands();
+        $this->registerTenantParticipantMappings($config->get('tenancy.multi_site.participant.mappings'));
+    }
+
+
+
+    /**
+     * Register the participant mapping aliases
+     *
+     * @param array $mappings
+     *
+     * @return void
+     */
+    protected function registerTenantParticipantMappings(array $mappings = [])
     {
         $resolver = $this->app->make('auth.tenant.type_resolver');
-        foreach ($this->app->make('config')->get('tenancy.participant_mappings', []) as $alias => $class) {
+        foreach ($mappings as $alias => $class) {
             $resolver->addMapping($alias, $class);
         }
     }
 
     /**
      * Register the main tenant participant repository
+     *
+     * @param Repository $config
      */
-    protected function registerTenantParticipantRepository()
+    protected function registerMultiAccountParticipantRepository(Repository $config)
     {
-        $repository = $this->app->make('config')->get('tenancy.participant_repository');
-        $entity     = $this->app->make('config')->get('tenancy.participant_class');
+        $repository = $config->get('tenancy.multi_account.participant.repository');
+        $entity     = $config->get('tenancy.multi_account.participant.class');
 
         $this->app->singleton(TenantRepositoryContract::class, function ($app) use ($repository, $entity) {
             return new TenantParticipantRepository(
@@ -177,28 +247,41 @@ class TenancyServiceProvider extends ServiceProvider
             );
         });
 
-        $this->app->alias(TenantRepositoryContract::class, 'auth.tenant.participant_repository');
+        $this->app->alias(TenantRepositoryContract::class, 'auth.tenant.account_repository');
     }
 
     /**
      * Register the main tenant participant repository
+     *
+     * @param Repository $config
      */
-    protected function registerDomainAwareTenantParticipantRepository()
+    protected function registerMultiSiteParticipantRepository(Repository $config)
     {
-        $repository = $this->app->make('config')->get('tenancy.domain_participant_repository');
-        $entity     = $this->app->make('config')->get('tenancy.domain_participant_class');
+        $repository = $config->get('tenancy.multi_site.participant.repository');
+        $entity     = $config->get('tenancy.multi_site.participant.class');
 
-        if ( $repository && $entity ) {
-            $this->app->singleton(DomainTenantRepositoryContract::class,
-                function ($app) use ($repository, $entity) {
-                    return new DomainAwareTenantParticipantRepository(
-                        new $repository($app['em'], $app['em']->getClassMetaData($entity))
-                    );
-                }
-            );
+        $this->app->singleton(DomainTenantRepositoryContract::class,
+            function ($app) use ($repository, $entity) {
+                return new DomainAwareTenantParticipantRepository(
+                    new $repository($app['em'], $app['em']->getClassMetaData($entity))
+                );
+            }
+        );
 
-            $this->app->alias(DomainTenantRepositoryContract::class, 'auth.tenant.domain_participant_repository');
-        }
+        $this->app->alias(DomainTenantRepositoryContract::class, 'auth.tenant.site_repository');
+    }
+
+    /**
+     * Register console commands
+     */
+    protected function registerMultiSiteConsoleCommands()
+    {
+        $this->commands([
+            Console\TenantListCommand::class,
+            Console\TenantRouteListCommand::class,
+            Console\TenantRouteCacheCommand::class,
+            Console\TenantRouteClearCommand::class,
+        ]);
     }
 
     /**
@@ -206,9 +289,9 @@ class TenancyServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    protected function registerTenantAwareRepositories()
+    protected function registerTenantAwareRepositories(Repository $config)
     {
-        foreach ($this->app->make('config')->get('tenancy.repositories', []) as $details) {
+        foreach ($config->get('tenancy.doctrine.repositories', []) as $details) {
             if (!isset($details['repository']) && !isset($details['base'])) {
                 throw new \InvalidArgumentException(
                     sprintf('Failed to process tenant repository data: missing repository/base from definition')
@@ -229,21 +312,7 @@ class TenancyServiceProvider extends ServiceProvider
         }
     }
 
-    /**
-     * If twig is enabled, register the extension
-     *
-     * @return void
-     */
-    protected function registerTwigExtension()
-    {
-        if ( $this->app->resolved('twig') ) {
-            $this->app->singleton(TenantExtension::class, function ($app) {
-                return new TenantExtension($app[TenantRepositoryContract::class], $app['auth.tenant']);
-            });
 
-            $this->app['twig']->addExtension($this->app[TenantExtension::class]);
-        }
-    }
 
     /**
      * Get the URL generator request rebinder.
@@ -258,39 +327,11 @@ class TenancyServiceProvider extends ServiceProvider
     }
 
     /**
-     * @return boolean
-     */
-    protected function hasMultiSiteTenancy()
-    {
-        $repository = $this->app->make('config')->get('tenancy.domain_participant_repository');
-        $entity     = $this->app->make('config')->get('tenancy.domain_participant_class');
-
-        return ($repository && $entity);
-    }
-
-    /**
      * @return string
      */
     protected function getConfigPath()
     {
         return __DIR__ . '/../config/tenancy.php';
-    }
-
-    /**
-     * Register console commands
-     */
-    protected function registerConsoleCommands()
-    {
-        if ( $this->hasMultiSiteTenancy() ) {
-            $this->commands(
-                [
-                    Console\TenantListCommand::class,
-                    Console\TenantRouteListCommand::class,
-                    Console\TenantRouteCacheCommand::class,
-                    Console\TenantRouteClearCommand::class,
-                ]
-            );
-        }
     }
 
     /**
@@ -302,8 +343,8 @@ class TenancyServiceProvider extends ServiceProvider
             'auth.tenant',
             'auth.tenant.type_resolver',
             'auth.tenant.redirector',
-            'auth.tenant.participant_repository',
-            'auth.tenant.domain_participant_repository',
+            'auth.tenant.account_repository',
+            'auth.tenant.site_repository',
         ];
     }
 }

@@ -19,8 +19,6 @@
 namespace Somnambulist\Tenancy\Twig;
 
 use Somnambulist\Tenancy\Contracts\Tenant as TenantContract;
-use Somnambulist\Tenancy\Contracts\TenantAware as TenantAwareContract;
-use Somnambulist\Tenancy\Contracts\TenantParticipantRepository;
 use Twig_Extension;
 use Twig_SimpleFunction;
 
@@ -38,11 +36,6 @@ class TenantExtension extends Twig_Extension
 {
 
     /**
-     * @var TenantParticipantRepository
-     */
-    protected $repository;
-
-    /**
      * @var TenantContract
      */
     protected $tenant;
@@ -50,12 +43,10 @@ class TenantExtension extends Twig_Extension
     /**
      * Create a new html extension
      *
-     * @param TenantParticipantRepository $repository
-     * @param TenantContract              $tenant
+     * @param TenantContract $tenant
      */
-    public function __construct(TenantParticipantRepository $repository, TenantContract $tenant)
+    public function __construct(TenantContract $tenant)
     {
-        $this->repository = $repository;
         $this->tenant     = $tenant;
     }
 
@@ -64,7 +55,7 @@ class TenantExtension extends Twig_Extension
      */
     public function getName()
     {
-        return 'App_Service_Tenant_Twig_TenantExtension';
+        return 'Somnambulist_Tenancy_Twig_TenantExtension';
     }
 
     /**
@@ -73,33 +64,11 @@ class TenantExtension extends Twig_Extension
     public function getFunctions()
     {
         return [
-            new Twig_SimpleFunction('current_tenant_owner_id',   [$this->tenant, 'getTenantOwnerId']),
-            new Twig_SimpleFunction('current_tenant_creator_id', [$this->tenant, 'getTenantCreatorId']),
-            new Twig_SimpleFunction('current_tenant_owner',      [$this->tenant, 'getTenantOwner']),
-            new Twig_SimpleFunction('current_tenant_creator',    [$this->tenant, 'getTenantCreator']),
-
-            new Twig_SimpleFunction('get_entity_tenant_owner',   [$this, 'getTenantOwner']),
-            new Twig_SimpleFunction('get_entity_tenant_creator', [$this, 'getTenantCreator']),
+            new Twig_SimpleFunction('current_tenant_owner_id',       [$this->tenant, 'getTenantOwnerId']),
+            new Twig_SimpleFunction('current_tenant_creator_id',     [$this->tenant, 'getTenantCreatorId']),
+            new Twig_SimpleFunction('current_tenant_owner',          [$this->tenant, 'getTenantOwner']),
+            new Twig_SimpleFunction('current_tenant_creator',        [$this->tenant, 'getTenantCreator']),
+            new Twig_SimpleFunction('current_tenant_security_model', [$this->tenant, 'getSecurityModel']),
         ];
-    }
-
-    /**
-     * @param TenantAwareContract $entity
-     *
-     * @return null|\Somnambulist\Tenancy\Contracts\TenantParticipant
-     */
-    public function getTenantOwner(TenantAwareContract $entity)
-    {
-        return $this->repository->find($entity->getTenantOwnerId());
-    }
-
-    /**
-     * @param TenantAwareContract $entity
-     *
-     * @return null|\Somnambulist\Tenancy\Contracts\TenantParticipant
-     */
-    public function getTenantCreator(TenantAwareContract $entity)
-    {
-        return $this->repository->find($entity->getTenantCreatorId());
     }
 }
