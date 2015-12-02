@@ -182,7 +182,7 @@ class TenancyServiceProvider extends ServiceProvider
             return;
         }
 
-        $this->registerMultiAccountTenancy($config);
+        $this->registerMultiAccountParticipantRepository($config);
         $this->registerTenantParticipantMappings($config->get('tenancy.multi_account.participant.mappings'));
     }
 
@@ -209,7 +209,7 @@ class TenancyServiceProvider extends ServiceProvider
          *       warning if so.
          */
 
-        $this->registerMultiSiteTenancy($config);
+        $this->registerMultiSiteParticipantRepository($config);
         $this->registerMultiSiteConsoleCommands();
         $this->registerTenantParticipantMappings($config->get('tenancy.multi_site.participant.mappings'));
     }
