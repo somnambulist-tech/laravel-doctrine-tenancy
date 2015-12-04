@@ -16,25 +16,57 @@
  * and is licensed under the MIT license.
  */
 
-namespace Somnambulist\Tenancy;
+namespace Somnambulist\Tenancy\View;
 
-use Eloquent\Enumeration\AbstractEnumeration;
+use Illuminate\View\FileViewFinder as BaseFinder;
 
 /**
- * Class TenantSecurityModel
- *
- * Deliberately left open to allow adding additional security model types.
+ * Class FileViewFinder
  *
  * @package    Somnambulist\Tenancy
- * @subpackage Somnambulist\Tenancy\TenantSecurityModel
+ * @subpackage Somnambulist\Tenancy\FileViewFinder
  * @author     Dave Redfern
  */
-class TenantSecurityModel extends AbstractEnumeration
+class FileViewFinder extends BaseFinder
 {
 
-    const SHARED  = 'shared';
-    const USER    = 'user';
-    const CLOSED  = 'closed';
-    const INHERIT = 'inherit';
+    /**
+     * Append a path to the top of the array of paths
+     *
+     * @param string $location
+     *
+     * @return $this
+     */
+    public function prependLocation($location)
+    {
+        if (!in_array($location, $this->paths)) {
+            array_unshift($this->paths, $location);
+        }
 
+        return $this;
+    }
+
+    /**
+     * Reset the entire stack of paths with a new array
+     *
+     * @param array $paths
+     *
+     * @return $this
+     */
+    public function setPaths(array $paths = [])
+    {
+        $this->paths = $paths;
+
+        return $this;
+    }
+
+    /**
+     * Inverts the order of the paths, sets and returns the paths array
+     *
+     * @return array
+     */
+    public function reversePaths()
+    {
+        return $this->paths = array_reverse($this->paths);
+    }
 }

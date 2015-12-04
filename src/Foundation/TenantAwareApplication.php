@@ -21,9 +21,9 @@ namespace Somnambulist\Tenancy\Foundation;
 use Illuminate\Foundation\Application;
 use Somnambulist\Tenancy\Contracts\DomainAwareTenantParticipant;
 use Somnambulist\Tenancy\Contracts\Tenant as TenantContract;
-use Somnambulist\Tenancy\Entity\NullTenant;
-use Somnambulist\Tenancy\Entity\NullUser;
-use Somnambulist\Tenancy\Entity\Tenant;
+use Somnambulist\Tenancy\Entities\NullTenant;
+use Somnambulist\Tenancy\Entities\NullUser;
+use Somnambulist\Tenancy\Entities\Tenant;
 
 /**
  * Class TenantAwareApplication

@@ -16,37 +16,36 @@
  * and is licensed under the MIT license.
  */
 
-namespace Somnambulist\Tenancy\Traits;
+namespace Somnambulist\Tenancy\Entities;
 
-use Somnambulist\Tenancy\Entities\SecurityModel;
+use Somnambulist\Tenancy\Contracts\BelongsToTenant as BelongsToTenantContract;
+use Somnambulist\Tenancy\Contracts\BelongsToTenantParticipant as BelongsToTenantParticipantContract;
+use Somnambulist\Tenancy\Contracts\TenantParticipant;
+use Somnambulist\Tenancy\Traits\BelongsToTenant;
+use Illuminate\Auth\Authenticatable;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 
 /**
- * Class TenantParticipant
+ * Class NullUser
  *
- * A very basic TenantParticipant can use this trait to essentially create a
- * restricted, no data sharing setup. This is included as an example, but is
- * not necessarily practical.
- *
- * @package    Somnambulist\Tenancy\Traits
- * @subpackage Somnambulist\Tenancy\Traits\TenantParticipant
+ * @package    Somnambulist\Tenancy\Entities
+ * @subpackage Somnambulist\Tenancy\Entities\NullUser
  * @author     Dave Redfern
  */
-trait TenantParticipant
+class NullUser implements
+    AuthenticatableContract,
+    BelongsToTenantContract,
+    BelongsToTenantParticipantContract
 {
+
+    use Authenticatable;
+    use BelongsToTenant;
 
     /**
      * @return TenantParticipant
      */
-    public function getTenantOwner()
+    public function getTenantParticipant()
     {
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getSecurityModel()
-    {
-        return SecurityModel::CLOSED;
+        return null;
     }
 }

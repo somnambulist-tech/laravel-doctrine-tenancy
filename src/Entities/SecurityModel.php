@@ -16,36 +16,29 @@
  * and is licensed under the MIT license.
  */
 
-namespace Somnambulist\Tenancy\Entity;
+namespace Somnambulist\Tenancy\Entities;
 
-use Somnambulist\Tenancy\Contracts\BelongsToTenant as BelongsToTenantContract;
-use Somnambulist\Tenancy\Contracts\BelongsToTenantParticipant as BelongsToTenantParticipantContract;
-use Somnambulist\Tenancy\Contracts\TenantParticipant;
-use Somnambulist\Tenancy\Traits\BelongsToTenant;
-use Illuminate\Auth\Authenticatable;
-use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Eloquent\Enumeration\AbstractEnumeration;
 
 /**
- * Class NullUser
+ * Class SecurityModel
  *
- * @package    Somnambulist\Tenancy\Entity
- * @subpackage Somnambulist\Tenancy\Entity\NullUser
+ * Defines the various security levels that the tenant system has implemented.
+ * This is used by the TenantAwareRepository to apply query filters to requests
+ * to limit the information that is pulled back.
+ *
+ * Deliberately left open to allow adding additional security model types.
+ *
+ * @package    Somnambulist\Tenancy
+ * @subpackage Somnambulist\Tenancy\Entities\SecurityModel
  * @author     Dave Redfern
  */
-class NullUser implements
-    AuthenticatableContract,
-    BelongsToTenantContract,
-    BelongsToTenantParticipantContract
+class SecurityModel extends AbstractEnumeration
 {
 
-    use Authenticatable;
-    use BelongsToTenant;
+    const SHARED  = 'shared';
+    const USER    = 'user';
+    const CLOSED  = 'closed';
+    const INHERIT = 'inherit';
 
-    /**
-     * @return TenantParticipant
-     */
-    public function getTenantParticipant()
-    {
-        return null;
-    }
 }

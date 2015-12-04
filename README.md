@@ -209,7 +209,7 @@ Install using composer, or checkout / pull the files from github.com.
 ### Setup / Getting Started
 
  * add \Somnambulist\Tenancy\TenancyServiceProvider::class to your config/app.php
- * add \Somnambulist\Tenancy\TenantImporterEventSubscriber::class to config/doctrine.php subscribers
+ * add \Somnambulist\Tenancy\EventSubscribers\TenantImporterEventSubscriber::class to config/doctrine.php subscribers
  * create or import the config/tenancy.php file
  * create your TenantParticipant entity / repository and add to the config file
  * create your participant mappings in the config file (at least class => class)
@@ -219,7 +219,7 @@ Install using composer, or checkout / pull the files from github.com.
  * for multi-site
    * in bootstrap/app.php
      * change Application instance to \Somnambulist\Tenancy\Foundation\TenantAwareApplication
-     * _Note:_ if multi-site is enabled and this changed not made, an exception will be raised.
+     * _Note:_ if multi-site is enabled and this changed is not made, an exception will be raised.
    * in HttpKernel:
      * add TenantSiteResolver middleware to middleware, after CheckForMaintenanceMode
      * add TenantRouteResolver middleware to middleware, after TenantSiteResolver
@@ -444,14 +444,14 @@ able to inject these as dependency and set them up in the container.
 
 First you will need to create an App level TenantAwareRepository that extends:
 
- * Somnambulist\Tenancy\TenantAwareRepository
+ * Somnambulist\Tenancy\Repositories\TenantAwareRepository
 
 For example:
 
     <?php
     namespace App\Repository;
 
-    use Somnambulist\Tenancy\TenantAwareRepository;
+    use Somnambulist\Tenancy\Repositories\TenantAwareRepository;
 
     class AppTenantAwareRepository extends TenantAwareRepository
     {
@@ -597,11 +597,14 @@ Then you will need to either create per tenant domain route files (which can inc
 routes) or symlink the files if you wish to use the exact same routes.
 
 A middleware is provided to handle loading the routes for a multi-site setup. This must be loaded
-after the TenantSiteResolver, but before any other middlewares. In addition you must disable / remove
+after the TenantSiteResolver, but before any other middleware. In addition you must disable / remove
 the default App/Providers/RouteServiceProvider. This provider is registered too early and must be
 delayed / resolved via the TenantRouteResolver instead.
 
-_Note:_ these are **not** route middlewares but Kernel middlewares.
+The reasons for this setup are to ensure that only the chosen tenants routes are loaded, and not
+appended to any existing routing files.
+
+_Note:_ these are **not** route middleware but Kernel middleware.
 
 Your Kernel.php will end up looking like the following:
 
@@ -637,7 +640,7 @@ Again: ensure that the previous RouteServiceProvider in config/app.php has been 
 
 _Note:_ you must **not** use the standard route:list, route:cache in a multi-site setup. Tenant
 aware versions of these commands are automatically registered if a multi-site setup is detected
-in the configuration settings.
+in the configuration settings and are prefixed with tenant:.
 
 #### Route Namespace
 
@@ -656,7 +659,8 @@ file under the multi_site configuration block:
         // more stuff...
     ];
 
-If left out, the default App\Http\Controller is used.
+If left out, the default App\Http\Controller is used. If set to an empty string, then no
+namespace prefix will be set on any routes.
 
 #### Route Patterns
 
@@ -679,6 +683,37 @@ registered with the router when the routes are resolved.
         // more stuff...
     ];
 
+## Middleware
+
+### AuthenticateTenant
+
+AuthenticateTenant ensures the currently authenticated user is permitted to access the currently
+specified tenant URI. It is used as Route middleware and is required for Multi-Account tenant
+systems.
+
+### TenantSiteResolver
+
+TenantSiteResolver will determine if the requested host is a valid tenant host. This is the primary
+Multi-Site tenancy middleware. It must be registered as a Kernel middleware, and run after the
+maintenance mode check but before any others.
+
+### TenantRouteResolver
+
+TenantRouteResolver is the second part of the Multi-Site middleware. It runs after the site
+resolver and tries to load the hosts route information from a file located in App/Http/<domain>.php.
+If the current tenant is not a DomainAwareTenantParticipant, the standard routes.php file is
+checked for instead.
+
+### EnsureTenantType
+
+EnsureTenantType is a Route middleware and is used when you have used inheritance for your tenant
+participant. It allows routes to be safe-guarded from certain tenant types so for example: you
+could mark a set of routes as requiring a particular membership type, or as an opportunity to
+up-sell services - or purely as a security safe-guard to ensure that basic tenants do not gain
+access to admin features.
+
+This middleware should be the last to run of the tenancy middleware.
+
 ## Twig Extension
 
 A Twig extension is provided that can be added to the config/twigbridge.php extensions. This adds
@@ -690,7 +725,8 @@ the following template functions:
  * current_tenant_creator
  * current_tenant_security_model
 
-This allows access to the current resolved Tenant instance.
+This allows access to the current resolved Tenant instance. To enable the Twig extension, add it to
+the list of extensions in the config/twigbridge.php file.
 
 _Note:_ in a previous iteration, this included functions to look up tenant owner/creator from
 a repository, however: as the tenant could be domain aware or standard tenant, you do not
@@ -740,3 +776,8 @@ whenever in doubt: **always** deny rather than grant access.
  * [Laravel Doctrine](http://laraveldoctrine.org)
  * [Laravel](http://laravel.com)
  * [Doctrine](http://doctrine-project.org)
+
+### Other Multi-Tenant Projects
+
+ * [Hyn Multi-Tenant](https://github.com/hyn/multi-tenant)
+ * [Tenanti Multi-Tenant Schema Manger](https://github.com/orchestral/tenanti)

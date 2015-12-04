@@ -16,7 +16,7 @@
  * and is licensed under the MIT license.
  */
 
-namespace Somnambulist\Tenancy\Entity;
+namespace Somnambulist\Tenancy\Entities;
 
 use Somnambulist\Tenancy\Contracts\TenantParticipant as TenantParticipantContract;
 use Somnambulist\Tenancy\Traits\TenantParticipant;
@@ -24,8 +24,8 @@ use Somnambulist\Tenancy\Traits\TenantParticipant;
 /**
  * Class NullTenant
  *
- * @package    Somnambulist\Tenancy\Entity
- * @subpackage Somnambulist\Tenancy\Entity\NullTenant
+ * @package    Somnambulist\Tenancy\Entities
+ * @subpackage Somnambulist\Tenancy\Entities\NullTenant
  * @author     Dave Redfern
  */
 class NullTenant implements TenantParticipantContract

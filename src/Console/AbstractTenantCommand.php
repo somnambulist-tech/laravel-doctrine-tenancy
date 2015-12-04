@@ -23,7 +23,7 @@ use Illuminate\Routing\Router;
 use Illuminate\Console\Command;
 use Somnambulist\Tenancy\Contracts\DomainAwareTenantParticipantRepository as DomainRepository;
 use Somnambulist\Tenancy\Contracts\Tenant;
-use Somnambulist\Tenancy\Entity\NullUser;
+use Somnambulist\Tenancy\Entities\NullUser;
 use Somnambulist\Tenancy\Http\Middleware\TenantRouteResolver;
 use Symfony\Component\Console\Input\InputArgument;
 

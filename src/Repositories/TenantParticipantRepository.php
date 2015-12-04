@@ -16,7 +16,7 @@
  * and is licensed under the MIT license.
  */
 
-namespace Somnambulist\Tenancy;
+namespace Somnambulist\Tenancy\Repositories;
 
 use Somnambulist\Tenancy\Contracts\TenantParticipant as TenantParticipantContract;
 use Somnambulist\Tenancy\Contracts\TenantParticipantRepository as RepositoryContract;
@@ -31,7 +31,7 @@ use Somnambulist\Tenancy\Contracts\TenantParticipantRepository as RepositoryCont
  * This should be mapped in the TenantRepositoryServiceProvider register call.
  *
  * @package    Somnambulist\Tenancy
- * @subpackage Somnambulist\Tenancy\TenantParticipantRepository
+ * @subpackage Somnambulist\Tenancy\Repositories\TenantParticipantRepository
  * @author     Dave Redfern
  */
 class TenantParticipantRepository implements RepositoryContract

@@ -16,10 +16,11 @@
  * and is licensed under the MIT license.
  */
 
-namespace Somnambulist\Tenancy;
+namespace Somnambulist\Tenancy\Repositories;
 
 use Somnambulist\Tenancy\Contracts\DomainAwareTenantParticipant as TenantParticipantContract;
 use Somnambulist\Tenancy\Contracts\DomainAwareTenantParticipantRepository as RepositoryContract;
+use Somnambulist\Tenancy\Repositories\TenantParticipantRepository;
 
 /**
  * Class DomainAwareTenantParticipantRepository
@@ -31,7 +32,7 @@ use Somnambulist\Tenancy\Contracts\DomainAwareTenantParticipantRepository as Rep
  * This should be mapped in the TenantRepositoryServiceProvider register call.
  *
  * @package    Somnambulist\Tenancy
- * @subpackage Somnambulist\Tenancy\DomainAwareTenantParticipantRepository
+ * @subpackage Somnambulist\Tenancy\Repositories\DomainAwareTenantParticipantRepository
  * @author     Dave Redfern
  */
 class DomainAwareTenantParticipantRepository extends TenantParticipantRepository implements RepositoryContract

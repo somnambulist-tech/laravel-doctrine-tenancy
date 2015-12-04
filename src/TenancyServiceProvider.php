@@ -23,13 +23,17 @@ use Somnambulist\Tenancy\Console;
 use Somnambulist\Tenancy\Contracts\DomainAwareTenantParticipantRepository as DomainTenantRepositoryContract;
 use Somnambulist\Tenancy\Contracts\TenantParticipantRepository as TenantRepositoryContract;
 use Somnambulist\Tenancy\Contracts\Tenant as TenantContract;
-use Somnambulist\Tenancy\Entity\NullTenant;
-use Somnambulist\Tenancy\Entity\NullUser;
-use Somnambulist\Tenancy\Entity\Tenant;
+use Somnambulist\Tenancy\Entities\NullTenant;
+use Somnambulist\Tenancy\Entities\NullUser;
+use Somnambulist\Tenancy\Entities\Tenant;
 use Somnambulist\Tenancy\Foundation\TenantAwareApplication;
+use Somnambulist\Tenancy\Http\TenantRedirectorService;
+use Somnambulist\Tenancy\Repositories\DomainAwareTenantParticipantRepository;
+use Somnambulist\Tenancy\Repositories\TenantParticipantRepository;
 use Somnambulist\Tenancy\Routing\UrlGenerator;
-use Somnambulist\Tenancy\Twig\TenantExtension;
 use Illuminate\Support\ServiceProvider;
+use Somnambulist\Tenancy\Services\TenantTypeResolver;
+use Somnambulist\Tenancy\View\FileViewFinder;
 
 /**
  * Class TenancyServiceProvider
@@ -71,6 +75,7 @@ class TenancyServiceProvider extends ServiceProvider
         }
 
         $this->registerTenantCoreServices($config);
+        $this->registerTenantAwareViewFinder($config);
         $this->registerTenantAwareUrlGenerator($config);
 
         $this->registerMultiAccountTenancy($config);
@@ -116,6 +121,22 @@ class TenancyServiceProvider extends ServiceProvider
         /* Aliases */
         $this->app->alias(TenantRedirectorService::class, 'auth.tenant.redirector');
         $this->app->alias(TenantTypeResolver::class,      'auth.tenant.type_resolver');
+    }
+
+    /**
+     * Re-register the view finder with one that allows manipulating the paths array
+     *
+     * @param Repository $config
+     *
+     * @return void
+     */
+    protected function registerTenantAwareViewFinder(Repository $config)
+    {
+        $this->app->bind('view.finder', function ($app) use ($config) {
+            $paths = $config['view.paths'];
+
+            return new FileViewFinder($app['files'], $paths);
+        });
     }
 
     /**

@@ -16,16 +16,20 @@
  * and is licensed under the MIT license.
  */
 
-namespace Somnambulist\Tenancy;
+namespace Somnambulist\Tenancy\Http;
 
 use Somnambulist\Tenancy\Contracts\BelongsToTenantParticipant as ParticipantContract;
 use Somnambulist\Tenancy\Contracts\BelongsToTenantParticipants as ParticipantsContract;
 
 /**
- * Class TenantRedirectResolver
+ * Class TenantRedirectorService
+ *
+ * Handles redirecting the various tenant participant types to appropriate
+ * URIs after authentication or when visiting tenant aware routes without
+ * tenant information.
  *
  * @package    Somnambulist\Tenancy
- * @subpackage Somnambulist\Tenancy\TenantRedirectResolver
+ * @subpackage Somnambulist\Tenancy\TenantRedirectorService
  * @author     Dave Redfern
  */
 class TenantRedirectorService

@@ -19,7 +19,7 @@
 namespace Somnambulist\Tenancy\Http\Middleware;
 
 use Somnambulist\Tenancy\Contracts\Tenant as TenantContract;
-use Somnambulist\Tenancy\TenantTypeResolver;
+use Somnambulist\Tenancy\Services\TenantTypeResolver;
 use Closure;
 
 /**
@@ -38,7 +38,7 @@ class EnsureTenantType
     private $tenant;
 
     /**
-     * @var TenantTypeResolver
+     * @var \Somnambulist\Tenancy\Services\TenantTypeResolver
      */
     private $typeResolver;
 

@@ -16,7 +16,7 @@
  * and is licensed under the MIT license.
  */
 
-namespace Somnambulist\Tenancy;
+namespace Somnambulist\Tenancy\EventSubscribers;
 
 use Somnambulist\Tenancy\Contracts\Tenant as TenantContract;
 use Somnambulist\Tenancy\Contracts\TenantAware as TenantAwareContract;
@@ -25,13 +25,13 @@ use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Events;
 
 /**
- * Class TenantImporterEventSubscriber
+ * Class EntityOwnerEventSubscriber
  *
- * @package    Somnambulist\Tenancy\Doctrine
- * @subpackage Somnambulist\Tenancy\Doctrine\TenantImporterEventSubscriber
+ * @package    Somnambulist\Tenancy\EventSubscribers
+ * @subpackage Somnambulist\Tenancy\EventSubscribers\EntityOwnerEventSubscriber
  * @author     Dave Redfern
  */
-class TenantImporterEventSubscriber implements EventSubscriber
+class EntityOwnerEventSubscriber implements EventSubscriber
 {
 
     /**

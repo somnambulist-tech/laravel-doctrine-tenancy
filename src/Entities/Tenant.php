@@ -16,7 +16,7 @@
  * and is licensed under the MIT license.
  */
 
-namespace Somnambulist\Tenancy\Entity;
+namespace Somnambulist\Tenancy\Entities;
 
 use Somnambulist\Tenancy\Contracts\Tenant as TenantContract;
 use Somnambulist\Tenancy\Contracts\TenantParticipant as TenantParticipantContract;
@@ -25,8 +25,8 @@ use Illuminate\Contracts\Auth\Authenticatable;
 /**
  * Class AuthTenant
  *
- * @package    Somnambulist\Tenancy\Entity
- * @subpackage Somnambulist\Tenancy\Entity\AuthTenant
+ * @package    Somnambulist\Tenancy\Entities
+ * @subpackage Somnambulist\Tenancy\Entities\AuthTenant
  * @author     Dave Redfern
  */
 class Tenant implements TenantContract

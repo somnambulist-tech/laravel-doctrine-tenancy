@@ -16,7 +16,7 @@
  * and is licensed under the MIT license.
  */
 
-namespace Somnambulist\Tenancy;
+namespace Somnambulist\Tenancy\Repositories;
 
 use Somnambulist\Tenancy\Contracts\BelongsToTenant;
 use Somnambulist\Tenancy\Contracts\Tenant as TenantContract;
@@ -51,7 +51,7 @@ use Doctrine\ORM\QueryBuilder;
  * otherwise, only the current creator tenant is used.
  *
  * @package    Somnambulist\Tenancy
- * @subpackage Somnambulist\Tenancy\TenantAwareRepository
+ * @subpackage Somnambulist\Tenancy\Repositories\TenantAwareRepository
  * @author     Dave Redfern
  */
 abstract class TenantAwareRepository implements ObjectRepository

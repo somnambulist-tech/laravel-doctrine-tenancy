@@ -1,6 +1,24 @@
 Change Log
 ==========
 
+2015-12-03
+----------
+
+Changed:
+
+ * Cleaned up folder / file structure
+   * Moved repository classes into Repositories namespace
+   * Moved Redirector service into Http namespace
+   * Moved Entity -> Entities
+   * Moved TenantSecurityModel -> Entities\SecurityModel
+   * Moved TenantTypeResolver to Services namespace
+   * Moved TenantImporterEventSubscriber -> EventSubscribers\EntityOwnerEventSubscriber
+ * Changed TenantSiteResolver to better handle replacing FileViewFinder
+
+Added:
+
+ * Custom FileViewFinder that adds a prependLocation
+
 2015-12-02
 ----------
 

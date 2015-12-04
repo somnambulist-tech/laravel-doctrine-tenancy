@@ -16,7 +16,7 @@
  * and is licensed under the MIT license.
  */
 
-namespace Somnambulist\Tenancy;
+namespace Somnambulist\Tenancy\Services;
 
 use Somnambulist\Tenancy\Contracts\TenantParticipant as TenantParticipantContract;
 use Illuminate\Support\Collection;
@@ -30,7 +30,7 @@ use Illuminate\Support\Collection;
  * resolver service.
  *
  * @package    Somnambulist\Tenancy
- * @subpackage Somnambulist\Tenancy\TenantTypeResolver
+ * @subpackage Somnambulist\Tenancy\Services\TenantTypeResolver
  * @author     Dave Redfern
  */
 class TenantTypeResolver
