@@ -18,8 +18,11 @@
 
 namespace Somnambulist\Tenancy\Http\Controller;
 
-use App\Http\Controllers\Controller;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 
 /**
  * Class TenantController
@@ -37,6 +40,8 @@ use Illuminate\Http\Request;
  */
 abstract class TenantController extends Controller
 {
+
+    use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
     /**
      * Route: tenant.select_tenant
