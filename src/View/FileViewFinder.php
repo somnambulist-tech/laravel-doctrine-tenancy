@@ -39,7 +39,7 @@ class FileViewFinder extends BaseFinder
      */
     public function prependLocation($location)
     {
-        if (!in_array($location, $this->paths)) {
+        if ($location && !in_array($location, $this->paths)) {
             array_unshift($this->paths, $location);
         }
 
