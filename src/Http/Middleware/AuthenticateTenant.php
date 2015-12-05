@@ -78,12 +78,10 @@ class AuthenticateTenant
         /** @var TenantParticipantContract $owner */
         if (null !== $tenantOwnerId = $request->route('tenant_owner_id')) {
             if ($tenant->getTenantOwnerId() && $tenantOwnerId != $tenant->getTenantOwnerId()) {
-                throw new \RuntimeException(
-                    sprintf(
-                        'tenant_owner_id "%s" in route parameters does not match the resolved owner "%s"',
-                        $tenantOwnerId, $tenant->getTenantOwnerId()
-                    )
-                );
+                abort(500, sprintf(
+                    'Selected tenant_owner_id "%s" in route parameters does not match the resolved owner "%s: %s"',
+                    $tenantOwnerId, $tenant->getTenantOwnerId(), $tenant->getTenantOwner()->getName()
+                ));
             }
 
             $owner = $this->repository->find($tenantOwnerId);
@@ -98,9 +96,7 @@ class AuthenticateTenant
         $user = $this->auth->user();
 
         if (!$user instanceof BelongsToTenantContract) {
-            throw new \RuntimeException(
-                sprintf('Authenticatable User entity does not implement BelongsToTenant contract.')
-            );
+            abort(500, sprintf('The Authenticatable User entity does not implement BelongsToTenant contract.'));
         }
 
         if (!$creator || !$user->belongsToTenant($creator)) {
