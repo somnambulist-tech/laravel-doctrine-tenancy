@@ -106,6 +106,10 @@ class AuthenticateTenant
             return redirect()->route('tenant.invalid_tenant_hierarchy');
         }
 
+        // remove the tenant parameters, TenantAware URL generator has access to Tenant
+        $request->route()->forgetParameter('tenant_owner_id');
+        $request->route()->forgetParameter('tenant_creator_id');
+
         // bind resolved tenant data to container
         $tenant->updateTenancy($user, $creator->getTenantOwner(), $creator);
 
