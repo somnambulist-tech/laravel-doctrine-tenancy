@@ -1,6 +1,17 @@
 Change Log
 ==========
 
+2016-01-10
+----------
+
+Changed:
+
+ * Added support for Laravel 5.2
+ * Fixed FileViewFinder checks for location before adding (2015-12-05)
+ * Fixed TenantController to use Framework controller and not AppController (2015-12-05)
+ * Fixed AuthenticateTenant middleware to use abort() instead of raising runtime exception (2015-12-05)
+ * Fixed tenant parameters should be removed from route params (2015-12-13)
+
 2015-12-03
 ----------
 
