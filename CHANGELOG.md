@@ -7,6 +7,8 @@ Change Log
 Changed:
 
  * Added support for Laravel 5.2
+ * Fixed bug in User security model using wrong interface and method call
+ * Fixed interface definition missing order by parameter
  * Fixed FileViewFinder checks for location before adding (2015-12-05)
  * Fixed TenantController to use Framework controller and not AppController (2015-12-05)
  * Fixed AuthenticateTenant middleware to use abort() instead of raising runtime exception (2015-12-05)

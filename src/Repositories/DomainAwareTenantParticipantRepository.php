@@ -20,7 +20,6 @@ namespace Somnambulist\Tenancy\Repositories;
 
 use Somnambulist\Tenancy\Contracts\DomainAwareTenantParticipant as TenantParticipantContract;
 use Somnambulist\Tenancy\Contracts\DomainAwareTenantParticipantRepository as RepositoryContract;
-use Somnambulist\Tenancy\Repositories\TenantParticipantRepository;
 
 /**
  * Class DomainAwareTenantParticipantRepository

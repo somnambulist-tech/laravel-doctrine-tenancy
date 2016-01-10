@@ -68,10 +68,11 @@ interface TenantParticipantRepository
      * Finds a single object by a set of criteria.
      *
      * @param array $criteria The criteria.
+     * @param array $orderBy
      *
      * @return TenantParticipant The tenant participant object.
      */
-    public function findOneBy(array $criteria);
+    public function findOneBy(array $criteria, array $orderBy = null);
 
     /**
      * Returns the class name of the object managed by the repository.

@@ -18,7 +18,7 @@
 
 namespace Somnambulist\Tenancy\Repositories;
 
-use Somnambulist\Tenancy\Contracts\BelongsToTenant;
+use Somnambulist\Tenancy\Contracts\BelongsToTenantParticipants;
 use Somnambulist\Tenancy\Contracts\Tenant as TenantContract;
 use Somnambulist\Tenancy\Contracts\TenantAware as TenantAwareContract;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -169,8 +169,8 @@ abstract class TenantAwareRepository implements ObjectRepository
     protected function applyUserSecurityModel(QueryBuilder $qb, $alias)
     {
         $user = $this->tenant->getUser();
-        if ($user instanceof BelongsToTenant) {
-            $tenants = $user->getAccessibleTenants();
+        if ($user instanceof BelongsToTenantParticipants) {
+            $tenants = $user->getTenantParticipants();
         } else {
             $tenants = new ArrayCollection([$this->tenant->getTenantCreator()]);
         }
