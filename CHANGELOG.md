@@ -1,6 +1,13 @@
 Change Log
 ==========
 
+2016-01-30
+----------
+
+Changed:
+
+ * Fixed TenantRouteListCommand as Laravel 5.2 removed deprecated method call.
+
 2016-01-10
 ----------
 
