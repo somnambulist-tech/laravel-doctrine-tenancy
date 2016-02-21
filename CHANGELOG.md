@@ -1,6 +1,13 @@
 Change Log
 ==========
 
+2016-02-20
+----------
+
+Changed:
+
+ * Fixed TenantRouteResolver not checking for tenant creator specific routes
+
 2016-01-30
 ----------
 

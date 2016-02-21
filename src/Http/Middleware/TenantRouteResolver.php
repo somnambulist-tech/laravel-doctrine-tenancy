@@ -140,13 +140,24 @@ class TenantRouteResolver extends ServiceProvider
         $router->group(
             ['namespace' => $this->namespace],
             function ($router) use ($tenant) {
-                $file = 'routes';
+                $tries = ['routes'];
 
                 if ($tenant->getTenantOwner() instanceof DomainAwareTenantParticipant) {
-                    $file = $tenant->getTenantOwner()->getDomain();
+                    array_unshift($tries, $tenant->getTenantOwner()->getDomain());
+                }
+                if ($tenant->getTenantCreator() instanceof DomainAwareTenantParticipant) {
+                    array_unshift($tries, $tenant->getTenantCreator()->getDomain());
                 }
 
-                require app_path(sprintf('Http/%s.php', $file));
+                foreach ($tries as $file) {
+                    $path = app_path(sprintf('Http/%s.php', $file));
+                    if (file_exists($path)) {
+                        require_once $path;
+                        return;
+                    }
+                }
+
+                throw new \RuntimeException('No routes found in: ' . implode(', ', $tries));
             }
         );
     }
