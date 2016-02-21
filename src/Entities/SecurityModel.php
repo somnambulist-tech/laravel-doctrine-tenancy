@@ -41,4 +41,11 @@ class SecurityModel extends AbstractEnumeration
     const CLOSED  = 'closed';
     const INHERIT = 'inherit';
 
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->value();
+    }
 }

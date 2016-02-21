@@ -1,6 +1,13 @@
 Change Log
 ==========
 
+2016-02-21
+----------
+
+Changed:
+
+ * SecurityModel returns value on cast to string instead of key name
+
 2016-02-20
 ----------
 
