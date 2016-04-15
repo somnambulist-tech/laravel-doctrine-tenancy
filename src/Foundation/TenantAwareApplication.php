@@ -84,7 +84,14 @@ class TenantAwareApplication extends Application
     protected function getTenantCacheName($default)
     {
         if ($this->isMultiSiteTenant()) {
-            return $this['auth.tenant']->getTenantOwner()->getDomain();
+            $creator = $this['auth.tenant']->getTenantCreator()->getDomain();
+            $owner   = $this['auth.tenant']->getTenantOwner()->getDomain();
+
+            if ($creator && $creator != $owner) {
+                return $creator;
+            } else {
+                return $owner;
+            }
         }
 
         return $default;

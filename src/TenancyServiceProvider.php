@@ -83,6 +83,40 @@ class TenancyServiceProvider extends ServiceProvider
         $this->registerTenantAwareRepositories($config);
     }
 
+    /**
+     * @return array
+     */
+    public static function compiles()
+    {
+        return [
+            __DIR__ . '/Contracts/BelongsToTenant.php',
+            __DIR__ . '/Contracts/BelongsToTenantParticipant.php',
+            __DIR__ . '/Contracts/BelongsToTenantParticipants.php',
+            __DIR__ . '/Contracts/TenantParticipant.php',
+            __DIR__ . '/Contracts/Tenant.php',
+            __DIR__ . '/Contracts/TenantAware.php',
+            __DIR__ . '/Contracts/DomainAwareTenantParticipant.php',
+            __DIR__ . '/Contracts/TenantParticipantRepository.php',
+            __DIR__ . '/Contracts/DomainAwareTenantParticipantRepository.php',
+            __DIR__ . '/Entities/SecurityModel.php',
+            __DIR__ . '/Entities/Tenant.php',
+            __DIR__ . '/Entities/NullTenant.php',
+            __DIR__ . '/Entities/NullUser.php',
+            __DIR__ . '/EventSubscribers/EntityOwnerEventSubscriber.php',
+            __DIR__ . '/Foundation/TenantAwareApplication.php',
+            __DIR__ . '/Repositories/TenantAwareRepository.php',
+            __DIR__ . '/Repositories/TenantParticipantRepository.php',
+            __DIR__ . '/Repositories/DomainAwareTenantParticipantRepository.php',
+            __DIR__ . '/Routing/UrlGenerator.php',
+            __DIR__ . '/Services/TenantTypeResolver.php',
+            __DIR__ . '/Traits/TenantAware.php',
+            __DIR__ . '/Traits/TenantParticipant.php',
+            __DIR__ . '/Traits/DomainAwareTenantParticipant.php',
+            __DIR__ . '/Traits/BelongsToTenant.php',
+            __DIR__ . '/View/FileViewFinder.php',
+        ];
+    }
+
 
 
     /**

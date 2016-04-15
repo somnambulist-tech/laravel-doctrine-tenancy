@@ -1,6 +1,14 @@
 Change Log
 ==========
 
+2016-04-14
+----------
+
+Changed:
+
+ * Added compiles() to Provider to allow core files to be compiled in production
+ * Fixed TenantAwareApplication checks for creator domain and fallsback to owner domain if not set
+
 2016-02-21
 ----------
 

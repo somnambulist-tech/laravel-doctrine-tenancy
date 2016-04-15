@@ -163,7 +163,7 @@ _Note:_ auth.tenant is initialised with the tenant owner / creator and a NullUse
 
 #### Multi-Site with Multi-Account Tenancy
 
-_Note:_ this is most complex scenario. TenantAwareApplication is required.
+_Note:_ this is the most complex scenario. TenantAwareApplication is required.
 
 _Note:_ you have to remove RouteServiceProvider and add TenantRouteResolver middleware.
 
@@ -530,7 +530,7 @@ library attempts to favour least access whenever possible.
 #### Applying / Adding Security Models
 
 The security model rules are applied by methods within the TenantAwareRepository. The model
-name is capitalised, prefixed with "appy" and suffixed with SecurityModel so "shared" becomes
+name is capitalised, prefixed with "apply" and suffixed with SecurityModel so "shared" becomes
 "applySharedSecurityModel".
 
 This is why an App level repository is strongly suggested as you can then implement your own
