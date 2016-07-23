@@ -110,7 +110,6 @@ class AuthenticateTenant
         $request->route()->forgetParameter('tenant_owner_id');
         $request->route()->forgetParameter('tenant_creator_id');
 
-        // bind resolved tenant data to container
         $tenant->updateTenancy($user, $creator->getTenantOwner(), $creator);
 
         return $next($request);

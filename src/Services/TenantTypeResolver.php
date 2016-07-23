@@ -102,7 +102,9 @@ class TenantTypeResolver
         $return = [];
 
         foreach ($this->mappings as $key => $value) {
-            if ( $value == $class ) $return[] = $key;
+            if ( $value == $class ) {
+                $return[] = $key;
+            }
         }
 
         return $return;

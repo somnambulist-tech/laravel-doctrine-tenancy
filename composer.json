@@ -17,10 +17,10 @@
     }
   },
   "require": {
-    "php": ">=5.5.0",
+    "php": ">=5.5.9",
     "eloquent/enumeration": "5.1.*",
     "laravel/framework": ">=5.1 <5.3",
-    "somnambulist/laravel-doctrine-behaviours": "0.2.*"
+    "somnambulist/laravel-doctrine-behaviours": "0.4.*"
   },
   "suggest": {
     "rcrowe/twigbridge": "Twig integration for the Twig extension, ~0.9.*",
