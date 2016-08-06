@@ -3,7 +3,6 @@
   "type": "library",
   "description": "A multi-tenancy implementation that uses Laravel and Doctrine.",
   "keywords": [ "doctrine", "laravel", "laravel-doctrine", "tenancy", "multi-tenancy" ],
-  "minimum-stability": "dev",
   "license": "MIT",
   "authors": [
     {
