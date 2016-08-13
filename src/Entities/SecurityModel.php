@@ -32,6 +32,11 @@ use Eloquent\Enumeration\AbstractEnumeration;
  * @package    Somnambulist\Tenancy
  * @subpackage Somnambulist\Tenancy\Entities\SecurityModel
  * @author     Dave Redfern
+ *
+ * @method static SecurityModel SHARED()
+ * @method static SecurityModel USER()
+ * @method static SecurityModel CLOSED()
+ * @method static SecurityModel INHERIT()
  */
 class SecurityModel extends AbstractEnumeration
 {
