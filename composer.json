@@ -18,8 +18,8 @@
   "require": {
     "php": ">=5.5.9",
     "eloquent/enumeration": "5.1.*",
-    "laravel/framework": ">=5.1 <5.3",
-    "somnambulist/laravel-doctrine-behaviours": "0.4.*"
+    "laravel/framework": "5.2.* || 5.3.*",
+    "somnambulist/laravel-doctrine-behaviours": "0.5.*"
   },
   "suggest": {
     "rcrowe/twigbridge": "Twig integration for the Twig extension, ~0.9.*",
