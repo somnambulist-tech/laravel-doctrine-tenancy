@@ -209,7 +209,7 @@ Install using composer, or checkout / pull the files from github.com.
 ### Setup / Getting Started
 
  * add \Somnambulist\Tenancy\TenancyServiceProvider::class to your config/app.php
- * add \Somnambulist\Tenancy\EventSubscribers\TenantImporterEventSubscriber::class to config/doctrine.php subscribers
+ * add \Somnambulist\Tenancy\EventSubscribers\TenantOwnerEventSubscriber::class to config/doctrine.php subscribers
  * create or import the config/tenancy.php file
  * create your TenantParticipant entity / repository and add to the config file
  * create your participant mappings in the config file (at least class => class)
