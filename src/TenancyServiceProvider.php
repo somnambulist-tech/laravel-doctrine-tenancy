@@ -184,7 +184,7 @@ class TenancyServiceProvider extends ServiceProvider
      */
     protected function registerTenantAwareUrlGenerator(Repository $config)
     {
-        $this->app['url'] = $this->app->share(
+        $this->app->singleton('url',
             function ($app) {
                 $routes = $app['router']->getRoutes();
 

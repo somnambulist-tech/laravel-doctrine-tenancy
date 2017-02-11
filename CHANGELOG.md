@@ -1,6 +1,13 @@
 Change Log
 ==========
 
+2017-02-11
+----------
+
+Changed:
+
+ * Fixed missed call to share in service provider
+
 2017-02-03
 ----------
 
