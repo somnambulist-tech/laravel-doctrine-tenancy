@@ -6,7 +6,14 @@ Change Log
 
 Changed:
 
- * Fixed RouteResolver for Laravel 5.4
+ * Updated UrlGenerator to work with Laravel 5.4, now requires Laravel 5.4
+ 
+2017-07-01
+----------
+
+Changed:
+
+ * Fixed RouteResolver for Laravel 5.3/5.4
  
 2017-02-11
 ----------
