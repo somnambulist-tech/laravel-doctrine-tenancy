@@ -21,6 +21,7 @@ namespace Somnambulist\Tenancy\Http\Middleware;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Routing\Router;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Route;
 use Somnambulist\Tenancy\Contracts\DomainAwareTenantParticipant;
 use Somnambulist\Tenancy\Contracts\Tenant;
 
@@ -105,7 +106,7 @@ class TenantRouteResolver extends ServiceProvider
      */
     public function handle($request, \Closure $next)
     {
-        $this->boot($this->app['router']);
+        $this->boot();
 
         return $next($request);
     }
@@ -113,17 +114,15 @@ class TenantRouteResolver extends ServiceProvider
     /**
      * Define your route model bindings, pattern filters, etc.
      *
-     * @param \Illuminate\Routing\Router $router
-     *
      * @return void
      */
-    public function boot(Router $router)
+    public function boot()
     {
         foreach ($this->app->make('config')->get('tenancy.multi_site.router.patterns', []) as $name => $pattern) {
-            $router->pattern($name, $pattern);
+            Route::pattern($name, $pattern);
         }
 
-        parent::boot($router);
+        parent::boot();
     }
 
     /**

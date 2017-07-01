@@ -1,6 +1,13 @@
 Change Log
 ==========
 
+2017-07-01
+----------
+
+Changed:
+
+ * Fixed RouteResolver for Laravel 5.4
+ 
 2017-02-11
 ----------
 
