@@ -7,6 +7,7 @@ Change Log
 Changed:
 
  * Updated UrlGenerator to work with Laravel 5.4, now requires Laravel 5.4
+ * Fixed TenantRouteListCommand
  
 2017-07-01
 ----------
