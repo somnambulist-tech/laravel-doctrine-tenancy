@@ -1,6 +1,13 @@
 Change Log
 ==========
 
+2017-07-11
+----------
+
+Changed:
+
+ * Reduced dependencies to illuminate/routing
+
 2017-07-01
 ----------
 
