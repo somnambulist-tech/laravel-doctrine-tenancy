@@ -1,26 +1,10 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license.
- */
 
 namespace Somnambulist\Tenancy\Twig;
 
 use Somnambulist\Tenancy\Contracts\Tenant as TenantContract;
-use Twig_Extension;
-use Twig_SimpleFunction;
+use Twig\Extension\AbstractExtension;
+use Twig\TwigFunction;
 
 /**
  * Class TenantExtension
@@ -30,9 +14,8 @@ use Twig_SimpleFunction;
  *
  * @package    Somnambulist\Tenancy\Twig
  * @subpackage Somnambulist\Tenancy\Twig\TenantExtension
- * @author     Dave Redfern
  */
-class TenantExtension extends Twig_Extension
+class TenantExtension extends AbstractExtension
 {
 
     /**
@@ -47,7 +30,7 @@ class TenantExtension extends Twig_Extension
      */
     public function __construct(TenantContract $tenant)
     {
-        $this->tenant     = $tenant;
+        $this->tenant = $tenant;
     }
 
     /**
@@ -64,11 +47,11 @@ class TenantExtension extends Twig_Extension
     public function getFunctions()
     {
         return [
-            new Twig_SimpleFunction('current_tenant_owner_id',       [$this->tenant, 'getTenantOwnerId']),
-            new Twig_SimpleFunction('current_tenant_creator_id',     [$this->tenant, 'getTenantCreatorId']),
-            new Twig_SimpleFunction('current_tenant_owner',          [$this->tenant, 'getTenantOwner']),
-            new Twig_SimpleFunction('current_tenant_creator',        [$this->tenant, 'getTenantCreator']),
-            new Twig_SimpleFunction('current_tenant_security_model', [$this->tenant, 'getSecurityModel']),
+            new TwigFunction('current_tenant_owner_id', [$this->tenant, 'getTenantOwnerId']),
+            new TwigFunction('current_tenant_creator_id', [$this->tenant, 'getTenantCreatorId']),
+            new TwigFunction('current_tenant_owner', [$this->tenant, 'getTenantOwner']),
+            new TwigFunction('current_tenant_creator', [$this->tenant, 'getTenantCreator']),
+            new TwigFunction('current_tenant_security_model', [$this->tenant, 'getSecurityModel']),
         ];
     }
 }

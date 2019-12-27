@@ -1,28 +1,14 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license.
- */
 
 namespace Somnambulist\Tenancy\Http\Controller;
 
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\View\View;
 
 /**
  * Class TenantController
@@ -36,7 +22,6 @@ use Illuminate\Routing\Controller;
  *
  * @package    Somnambulist\Tenancy\Http\Controller
  * @subpackage Somnambulist\Tenancy\Http\Controller\TenantController
- * @author     Dave Redfern
  */
 abstract class TenantController extends Controller
 {
@@ -46,7 +31,7 @@ abstract class TenantController extends Controller
     /**
      * Route: tenant.select_tenant
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function selectTenantAction()
     {
@@ -56,7 +41,7 @@ abstract class TenantController extends Controller
     /**
      * Route: tenant.no_tenants
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function noTenantsAvailableAction()
     {
@@ -66,7 +51,7 @@ abstract class TenantController extends Controller
     /**
      * Route: tenant.access_denied
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function accessDeniedAction()
     {
@@ -76,7 +61,7 @@ abstract class TenantController extends Controller
     /**
      * Route: tenant.invalid_tenant_hierarchy
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function invalidHierarchyAction()
     {
@@ -88,7 +73,7 @@ abstract class TenantController extends Controller
      *
      * @param Request $request
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function tenantTypeNotSupportedAction(Request $request)
     {

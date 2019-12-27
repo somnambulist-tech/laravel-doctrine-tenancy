@@ -1,6 +1,20 @@
 Change Log
 ==========
 
+2019-12-27
+----------
+
+Changed:
+
+ * Updated supported versions of Laravel to include up to 5.8 and 6.X
+ * Updated Twig extension to v2.X interfaces
+ * Fixed issues with method interfaces / inheritance and PHP 7+
+ 
+Added:
+
+ * tests for provider loading and resolution
+ * additional location checks for routes for better compatibility with config locations
+
 2017-07-11
 ----------
 
@@ -43,7 +57,7 @@ Changed:
 Changed:
 
  * Added compiles() to Provider to allow core files to be compiled in production
- * Fixed TenantAwareApplication checks for creator domain and fallsback to owner domain if not set
+ * Fixed TenantAwareApplication checks for creator domain and falls back to owner domain if not set
 
 2016-02-21
 ----------

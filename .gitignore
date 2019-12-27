@@ -77,3 +77,4 @@ Temporary Items
 /bin/
 tests/_output/*
 composer.lock
+/.phpunit.result.cache

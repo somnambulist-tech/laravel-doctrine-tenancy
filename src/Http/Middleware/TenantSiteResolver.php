@@ -1,25 +1,12 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license.
- */
 
 namespace Somnambulist\Tenancy\Http\Middleware;
 
+use Closure;
+use Illuminate\Http\Request;
 use Illuminate\View\Factory;
 use Illuminate\View\FileViewFinder;
+use RuntimeException;
 use Somnambulist\Tenancy\Contracts\DomainAwareTenantParticipant as TenantParticipant;
 use Somnambulist\Tenancy\Contracts\DomainAwareTenantParticipantRepository as ParticipantRepository;
 use Somnambulist\Tenancy\Entities\NullUser;
@@ -30,7 +17,6 @@ use Somnambulist\Tenancy\View\FileViewFinder as TenantViewFinder;
  *
  * @package    Somnambulist\Tenancy\Http\Middleware
  * @subpackage Somnambulist\Tenancy\Http\Middleware\TenantSiteResolver
- * @author     Dave Redfern
  */
 class TenantSiteResolver
 {
@@ -55,20 +41,20 @@ class TenantSiteResolver
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  \Closure                 $next
+     * @param Request $request
+     * @param Closure $next
      *
      * @return mixed
      */
-    public function handle($request, \Closure $next)
+    public function handle($request, Closure $next)
     {
         $config = app('config');
         $view   = app('view');
-        $domain = str_replace($config->get('tenancy.multi_site.ignorable_domain_components', []), '', $request->getHost());
+        $domain = str_replace((array)$config->get('tenancy.multi_site.ignorable_domain_components'), '', $request->getHost());
         $tenant = $this->repository->findOneByDomain($domain);
 
         if (!$tenant instanceof TenantParticipant) {
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 sprintf('Unable to resolve host "%s" to valid TenantParticipant.', $domain)
             );
         }
@@ -81,8 +67,8 @@ class TenantSiteResolver
         }
 
         // update app config
-        $config->set('app.url',    $request->getHost());
-        $config->set('view.paths', array_merge($config->get('view.paths', []), $paths));
+        $config->set('app.url', $request->getHost());
+        $config->set('view.paths', array_merge((array)$config->get('view.paths'), $paths));
 
         // bind resolved tenant data to container
         app('auth.tenant')->updateTenancy(new NullUser(), $tenant->getTenantOwner(), $tenant);
@@ -173,8 +159,6 @@ class TenantSiteResolver
      */
     protected function createViewPath($host)
     {
-        $path = realpath(base_path('resources/views/' . $host));
-
-        return $path;
+        return realpath(base_path('resources/views/' . $host));
     }
 }

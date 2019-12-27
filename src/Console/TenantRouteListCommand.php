@@ -1,27 +1,10 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license.
- */
 
 namespace Somnambulist\Tenancy\Console;
 
+use Illuminate\Routing\Route;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
-use Illuminate\Routing\Route;
-use Illuminate\Routing\Controller;
 use Symfony\Component\Console\Input\InputOption;
 
 /**
@@ -33,7 +16,6 @@ use Symfony\Component\Console\Input\InputOption;
  *
  * @package    Somnambulist\Tenancy\Console
  * @subpackage Somnambulist\Tenancy\Console\TenantRouteListCommand
- * @author     Dave Redfern
  */
 class TenantRouteListCommand extends AbstractTenantCommand
 {
@@ -73,12 +55,14 @@ class TenantRouteListCommand extends AbstractTenantCommand
      *
      * @return void
      */
-    public function fire()
+    public function handle()
     {
         $this->resolveTenantRoutes($this->argument('domain'));
 
         if (count($this->routes) == 0) {
-            return $this->error("The specified tenant does not have any routes.");
+            $this->error("The specified tenant does not have any routes.");
+
+            return;
         }
 
         $this->displayRoutes($this->getRoutes());
@@ -93,7 +77,8 @@ class TenantRouteListCommand extends AbstractTenantCommand
     {
         $routes = collect($this->routes)->map(function ($route) {
             return $this->getRouteInformation($route);
-        })->all();
+        })->all()
+        ;
 
         if ($sort = $this->option('sort')) {
             $routes = $this->sortRoutes($sort, $routes);
@@ -109,7 +94,7 @@ class TenantRouteListCommand extends AbstractTenantCommand
     /**
      * Get the route information for a given route.
      *
-     * @param \Illuminate\Routing\Route $route
+     * @param Route $route
      *
      * @return array
      */
@@ -143,7 +128,7 @@ class TenantRouteListCommand extends AbstractTenantCommand
     /**
      * Display the route information on the console.
      *
-     * @param  array $routes
+     * @param array $routes
      *
      * @return void
      */
@@ -155,7 +140,7 @@ class TenantRouteListCommand extends AbstractTenantCommand
     /**
      * Get before filters.
      *
-     * @param \Illuminate\Routing\Route $route
+     * @param Route $route
      *
      * @return string
      */
@@ -163,7 +148,8 @@ class TenantRouteListCommand extends AbstractTenantCommand
     {
         return collect($route->gatherMiddleware())->map(function ($middleware) {
             return $middleware instanceof \Closure ? 'Closure' : $middleware;
-        })->implode(',');
+        })->implode(',')
+            ;
     }
 
     /**
@@ -180,7 +166,7 @@ class TenantRouteListCommand extends AbstractTenantCommand
             $this->option('path') && !Str::contains($route['uri'], $this->option('path')) ||
             $this->option('method') && !Str::contains($route['method'], $this->option('method'))
         ) {
-            return;
+            return null;
         }
 
         return $route;

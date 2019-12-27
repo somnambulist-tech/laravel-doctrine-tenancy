@@ -74,6 +74,9 @@ The provided security models are:
 
 Additional models can be implemented. The default configuration is closed, with no sharing.
 
+__Note:__ to implement your own security models, create an alternative SecurityModel class.
+The enumeration object cannot be extended.
+
 #### Domain Aware Tenant Participant
 
 A domain aware tenant participant adds support for a domain name to the interface. This allows
@@ -126,6 +129,24 @@ requests to reduce the overhead of the tenant resolution.
 
 A file-system repository can be easily created instead of using the database, or a combination of
 both where a cache file is generated when the tenant sources change.
+
+Routes can be customised per site by adding a file to your routes folder using the domain name.
+Domain suffixes can be ignored by adding them to the list of ignorables in the tenancy.php config
+file under: `tenancy.multi_site.ignorable_domain_components`. The default are dev. and test.
+
+Routes are searched for in several locations:
+
+ * routes/<creator_domain>
+ * app/Http/<creator_domain>
+ * routes/<owner_domain>
+ * app/Http/<owner_domain>
+ * routes/routes
+ * routes/web
+ * app/Http/routes
+ * app/Http/web
+
+A single set of routes can be shared with all sites. If neither app/Http or routes exists, no routes
+will be loaded and an exception raised with the paths that were tried.
 
 In multi-site, changes must be made to your app config:
 

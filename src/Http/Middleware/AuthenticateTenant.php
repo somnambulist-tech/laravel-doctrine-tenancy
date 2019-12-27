@@ -1,36 +1,20 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license.
- */
 
 namespace Somnambulist\Tenancy\Http\Middleware;
 
+use Closure;
+use Illuminate\Contracts\Auth\Guard;
+use Illuminate\Http\Request;
 use Somnambulist\Tenancy\Contracts\BelongsToTenant as BelongsToTenantContract;
 use Somnambulist\Tenancy\Contracts\Tenant as TenantContract;
 use Somnambulist\Tenancy\Contracts\TenantParticipant as TenantParticipantContract;
 use Somnambulist\Tenancy\Contracts\TenantParticipantRepository;
-use Closure;
-use Illuminate\Contracts\Auth\Guard;
 
 /**
  * Class AuthenticateTenant
  *
  * @package    Somnambulist\Tenancy\Http\Middleware
  * @subpackage Somnambulist\Tenancy\Http\Middleware\AuthenticateTenant
- * @author     Dave Redfern
  */
 class AuthenticateTenant
 {
@@ -47,8 +31,6 @@ class AuthenticateTenant
      */
     protected $repository;
 
-
-
     /**
      * Create a new filter instance.
      *
@@ -64,14 +46,14 @@ class AuthenticateTenant
     /**
      * Handle an incoming request.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param \Closure                 $next
+     * @param Request $request
+     * @param Closure $next
      *
      * @return mixed
      */
     public function handle($request, Closure $next)
     {
-        $owner  = $creator = null;
+        $owner = $creator = null;
         /** @var TenantContract $tenant */
         $tenant = app('auth.tenant');
 

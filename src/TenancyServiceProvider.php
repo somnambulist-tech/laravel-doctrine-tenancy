@@ -1,28 +1,17 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license.
- */
 
 namespace Somnambulist\Tenancy;
 
+use Closure;
 use Illuminate\Config\Repository;
+use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Support\ServiceProvider;
+use InvalidArgumentException;
+use RuntimeException;
 use Somnambulist\Tenancy\Console;
 use Somnambulist\Tenancy\Contracts\DomainAwareTenantParticipantRepository as DomainTenantRepositoryContract;
-use Somnambulist\Tenancy\Contracts\TenantParticipantRepository as TenantRepositoryContract;
 use Somnambulist\Tenancy\Contracts\Tenant as TenantContract;
+use Somnambulist\Tenancy\Contracts\TenantParticipantRepository as TenantRepositoryContract;
 use Somnambulist\Tenancy\Entities\NullTenant;
 use Somnambulist\Tenancy\Entities\NullUser;
 use Somnambulist\Tenancy\Entities\Tenant;
@@ -31,7 +20,6 @@ use Somnambulist\Tenancy\Http\TenantRedirectorService;
 use Somnambulist\Tenancy\Repositories\DomainAwareTenantParticipantRepository;
 use Somnambulist\Tenancy\Repositories\TenantParticipantRepository;
 use Somnambulist\Tenancy\Routing\UrlGenerator;
-use Illuminate\Support\ServiceProvider;
 use Somnambulist\Tenancy\Services\TenantTypeResolver;
 use Somnambulist\Tenancy\View\FileViewFinder;
 
@@ -40,7 +28,6 @@ use Somnambulist\Tenancy\View\FileViewFinder;
  *
  * @package    Somnambulist\Tenancy\Providers
  * @subpackage Somnambulist\Tenancy\Providers\TenancyServiceProvider
- * @author     Dave Redfern
  */
 class TenancyServiceProvider extends ServiceProvider
 {
@@ -52,7 +39,7 @@ class TenancyServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->publishes([ $this->getConfigPath() => config_path('tenancy.php'), ], 'config');
+        $this->publishes([$this->getConfigPath() => config_path('tenancy.php'),], 'config');
     }
 
     /**
@@ -74,6 +61,7 @@ class TenancyServiceProvider extends ServiceProvider
             return;
         }
 
+
         $this->registerTenantCoreServices($config);
         $this->registerTenantAwareViewFinder($config);
         $this->registerTenantAwareUrlGenerator($config);
@@ -82,42 +70,6 @@ class TenancyServiceProvider extends ServiceProvider
         $this->registerMultiSiteTenancy($config);
         $this->registerTenantAwareRepositories($config);
     }
-
-    /**
-     * @return array
-     */
-    public static function compiles()
-    {
-        return [
-            __DIR__ . '/Contracts/BelongsToTenant.php',
-            __DIR__ . '/Contracts/BelongsToTenantParticipant.php',
-            __DIR__ . '/Contracts/BelongsToTenantParticipants.php',
-            __DIR__ . '/Contracts/TenantParticipant.php',
-            __DIR__ . '/Contracts/Tenant.php',
-            __DIR__ . '/Contracts/TenantAware.php',
-            __DIR__ . '/Contracts/DomainAwareTenantParticipant.php',
-            __DIR__ . '/Contracts/TenantParticipantRepository.php',
-            __DIR__ . '/Contracts/DomainAwareTenantParticipantRepository.php',
-            __DIR__ . '/Entities/SecurityModel.php',
-            __DIR__ . '/Entities/Tenant.php',
-            __DIR__ . '/Entities/NullTenant.php',
-            __DIR__ . '/Entities/NullUser.php',
-            __DIR__ . '/EventSubscribers/EntityOwnerEventSubscriber.php',
-            __DIR__ . '/Foundation/TenantAwareApplication.php',
-            __DIR__ . '/Repositories/TenantAwareRepository.php',
-            __DIR__ . '/Repositories/TenantParticipantRepository.php',
-            __DIR__ . '/Repositories/DomainAwareTenantParticipantRepository.php',
-            __DIR__ . '/Routing/UrlGenerator.php',
-            __DIR__ . '/Services/TenantTypeResolver.php',
-            __DIR__ . '/Traits/TenantAware.php',
-            __DIR__ . '/Traits/TenantParticipant.php',
-            __DIR__ . '/Traits/DomainAwareTenantParticipant.php',
-            __DIR__ . '/Traits/BelongsToTenant.php',
-            __DIR__ . '/View/FileViewFinder.php',
-        ];
-    }
-
-
 
     /**
      * Merge config
@@ -154,7 +106,7 @@ class TenancyServiceProvider extends ServiceProvider
 
         /* Aliases */
         $this->app->alias(TenantRedirectorService::class, 'auth.tenant.redirector');
-        $this->app->alias(TenantTypeResolver::class,      'auth.tenant.type_resolver');
+        $this->app->alias(TenantTypeResolver::class, 'auth.tenant.type_resolver');
     }
 
     /**
@@ -234,7 +186,7 @@ class TenancyServiceProvider extends ServiceProvider
         }
 
         if (!$this->app instanceof TenantAwareApplication) {
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 'Multi-site requires updating your bootstrap/app.php to use TenantAwareApplication'
             );
         }
@@ -253,11 +205,9 @@ class TenancyServiceProvider extends ServiceProvider
 
 
     /**
-     * Register the participant mapping aliases
-     *
      * @param array $mappings
      *
-     * @return void
+     * @throws BindingResolutionException
      */
     protected function registerTenantParticipantMappings(array $mappings = [])
     {
@@ -321,21 +271,20 @@ class TenancyServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register any bound tenant aware repositories
-     *
-     * @return void
+     * @param Repository $config
      */
     protected function registerTenantAwareRepositories(Repository $config)
     {
         foreach ($config->get('tenancy.doctrine.repositories', []) as $details) {
             if (!isset($details['repository']) && !isset($details['base'])) {
-                throw new \InvalidArgumentException(
+                throw new InvalidArgumentException(
                     sprintf('Failed to process tenant repository data: missing repository/base from definition')
                 );
             }
 
             $this->app->singleton($details['repository'], function ($app) use ($details) {
                 $class = $details['repository'];
+
                 return new $class($app['em'], $app[$details['base']], $app['auth.tenant']);
             });
 
@@ -353,7 +302,7 @@ class TenancyServiceProvider extends ServiceProvider
     /**
      * Get the URL generator request rebinder.
      *
-     * @return \Closure
+     * @return Closure
      */
     protected function requestRebinder()
     {
@@ -368,19 +317,5 @@ class TenancyServiceProvider extends ServiceProvider
     protected function getConfigPath()
     {
         return __DIR__ . '/../config/tenancy.php';
-    }
-
-    /**
-     * @return array
-     */
-    public function provides()
-    {
-        return [
-            'auth.tenant',
-            'auth.tenant.type_resolver',
-            'auth.tenant.redirector',
-            'auth.tenant.account_repository',
-            'auth.tenant.site_repository',
-        ];
     }
 }

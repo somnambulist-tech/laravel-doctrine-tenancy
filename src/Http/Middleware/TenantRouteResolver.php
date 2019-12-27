@@ -1,29 +1,17 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license.
- */
 
 namespace Somnambulist\Tenancy\Http\Middleware;
 
+use Closure;
 use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Routing\Router;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Router;
+use RuntimeException;
 use Somnambulist\Tenancy\Contracts\DomainAwareTenantParticipant;
 use Somnambulist\Tenancy\Contracts\Tenant;
+use function array_unique;
+use function base_path;
 
 /**
  * Class TenantRouteResolver
@@ -66,7 +54,6 @@ use Somnambulist\Tenancy\Contracts\Tenant;
  *
  * @package    Somnambulist\Tenancy\Http\Middleware
  * @subpackage Somnambulist\Tenancy\Http\Middleware\TenantRouteResolver
- * @author     Dave Redfern
  */
 class TenantRouteResolver extends ServiceProvider
 {
@@ -87,7 +74,7 @@ class TenantRouteResolver extends ServiceProvider
      * Amazingly we have to override the constructor because the parent is not type
      * hinted so won't dependency inject properly.
      *
-     * @param \Illuminate\Contracts\Foundation\Application $app
+     * @param Application $app
      */
     public function __construct(Application $app)
     {
@@ -99,12 +86,12 @@ class TenantRouteResolver extends ServiceProvider
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  \Closure                 $next
+     * @param Request $request
+     * @param Closure $next
      *
      * @return mixed
      */
-    public function handle($request, \Closure $next)
+    public function handle($request, Closure $next)
     {
         $this->boot();
 
@@ -119,7 +106,7 @@ class TenantRouteResolver extends ServiceProvider
     public function boot()
     {
         foreach ($this->app->make('config')->get('tenancy.multi_site.router.patterns', []) as $name => $pattern) {
-            Route::pattern($name, $pattern);
+            $this->app->make('router')->pattern($name, $pattern);
         }
 
         parent::boot();
@@ -128,7 +115,7 @@ class TenantRouteResolver extends ServiceProvider
     /**
      * Define the routes for the application.
      *
-     * @param  \Illuminate\Routing\Router $router
+     * @param Router $router
      *
      * @return void
      */
@@ -139,7 +126,8 @@ class TenantRouteResolver extends ServiceProvider
         $router->group(
             ['namespace' => $this->namespace],
             function ($router) use ($tenant) {
-                $tries = ['routes'];
+                $tries    = ['routes', 'web',];
+                $failures = [];
 
                 if ($tenant->getTenantOwner() instanceof DomainAwareTenantParticipant) {
                     array_unshift($tries, $tenant->getTenantOwner()->getDomain());
@@ -148,15 +136,23 @@ class TenantRouteResolver extends ServiceProvider
                     array_unshift($tries, $tenant->getTenantCreator()->getDomain());
                 }
 
+                $tries = array_unique($tries);
+
                 foreach ($tries as $file) {
-                    $path = app_path(sprintf('Http/%s.php', $file));
-                    if (file_exists($path)) {
-                        require_once $path;
-                        return;
+                    foreach (['routes', 'app/Http',] as $folder) {
+                        $path = base_path(sprintf('%s/%s.php', $folder, $file));
+
+                        if (file_exists($path)) {
+                            require_once $path;
+
+                            return;
+                        }
+
+                        $failures[] = $path;
                     }
                 }
 
-                throw new \RuntimeException('No routes found in: ' . implode(', ', $tries));
+                throw new RuntimeException('No routes found, tried: ' . implode(', ', $failures));
             }
         );
     }

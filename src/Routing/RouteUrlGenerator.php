@@ -1,20 +1,4 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license.
- */
 
 namespace Somnambulist\Tenancy\Routing;
 
@@ -29,7 +13,6 @@ use Somnambulist\Tenancy\Contracts\Tenant as TenantContract;
  *
  * @package    Somnambulist\Tenancy\Routing
  * @subpackage Somnambulist\Tenancy\Routing\RouteUrlGenerator
- * @author     Dave Redfern
  */
 class RouteUrlGenerator extends BaseRouteUrlGenerator
 {
@@ -50,14 +33,15 @@ class RouteUrlGenerator extends BaseRouteUrlGenerator
     {
         parent::__construct($url, $request);
 
-        $this->tenant  = $tenant;
+        $this->tenant = $tenant;
     }
 
     /**
      * Replace all of the wildcard parameters for a route path.
      *
-     * @param  string  $path
-     * @param  array  $parameters
+     * @param string $path
+     * @param array  $parameters
+     *
      * @return string
      */
     protected function replaceRouteParameters($path, array &$parameters)
@@ -67,7 +51,7 @@ class RouteUrlGenerator extends BaseRouteUrlGenerator
         $path = $this->replaceNamedParameters($path, $parameters);
 
         $path = preg_replace_callback('/\{.*?\}/', function ($match) use (&$parameters) {
-            return (empty($parameters) && ! Str::endsWith($match[0], '?}'))
+            return (empty($parameters) && !Str::endsWith($match[0], '?}'))
                 ? $match[0]
                 : array_shift($parameters);
         }, $path);
@@ -78,8 +62,9 @@ class RouteUrlGenerator extends BaseRouteUrlGenerator
     /**
      * Replace all of the named parameters in the path.
      *
-     * @param  string  $path
-     * @param  array  $parameters
+     * @param string $path
+     * @param array  $parameters
+     *
      * @return string
      */
     protected function replaceNamedParameters($path, &$parameters)

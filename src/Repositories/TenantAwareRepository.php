@@ -1,33 +1,18 @@
 <?php
-/*
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * and is licensed under the MIT license.
- */
 
 namespace Somnambulist\Tenancy\Repositories;
 
-use Somnambulist\Tenancy\Contracts\BelongsToTenantParticipants;
-use Somnambulist\Tenancy\Contracts\Tenant as TenantContract;
-use Somnambulist\Tenancy\Contracts\TenantAware as TenantAwareContract;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\ORMException;
-use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
+use RuntimeException;
+use Somnambulist\Tenancy\Contracts\BelongsToTenantParticipants;
+use Somnambulist\Tenancy\Contracts\Tenant as TenantContract;
+use Somnambulist\Tenancy\Contracts\TenantAware as TenantAwareContract;
+use UnexpectedValueException;
 
 /**
  * Class TenantAwareRepository
@@ -52,7 +37,6 @@ use Doctrine\ORM\QueryBuilder;
  *
  * @package    Somnambulist\Tenancy
  * @subpackage Somnambulist\Tenancy\Repositories\TenantAwareRepository
- * @author     Dave Redfern
  */
 abstract class TenantAwareRepository implements ObjectRepository
 {
@@ -72,8 +56,6 @@ abstract class TenantAwareRepository implements ObjectRepository
      */
     protected $tenant;
 
-
-
     /**
      * Constructor.
      *
@@ -88,8 +70,8 @@ abstract class TenantAwareRepository implements ObjectRepository
         $this->tenant     = $tenant;
         $repoClass        = $this->repository->getClassName();
 
-        if ( !in_array(TenantAwareContract::class, class_implements($repoClass)) ) {
-            throw new \RuntimeException(
+        if (!in_array(TenantAwareContract::class, class_implements($repoClass))) {
+            throw new RuntimeException(
                 sprintf('Class "%s" does not implement "%s"', $repoClass, TenantAwareContract::class)
             );
         }
@@ -139,10 +121,10 @@ abstract class TenantAwareRepository implements ObjectRepository
         $model  = $this->tenant->getTenantSecurityModel();
         $method = 'apply' . ucfirst($model) . 'SecurityModel';
 
-        if ( method_exists($this, $method) ) {
+        if (method_exists($this, $method)) {
             $this->$method($qb, $alias);
         } else {
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 sprintf('Security model "%s" has not been implemented by "%s"', $model, $method)
             );
         }
@@ -179,7 +161,7 @@ abstract class TenantAwareRepository implements ObjectRepository
             ->where("{$alias}.tenantOwnerId = :tenantOwnerId")
             ->andWhere("{$alias}.tenantCreatorId IN (:tenantCreators)")
             ->setParameters([
-                ':tenantOwnerId' => $this->tenant->getTenantOwnerId(),
+                ':tenantOwnerId'  => $this->tenant->getTenantOwnerId(),
                 ':tenantCreators' => $tenants,
             ])
         ;
@@ -204,14 +186,14 @@ abstract class TenantAwareRepository implements ObjectRepository
     /**
      * Finds an object by its primary key / identifier.
      *
+     * @param mixed $id The identifier.
+     *
+     * @return object|null The object.
      * @todo Might have performance issues since we are accessing EM to get class
      *       meta data to reference the correct primary identifier.
      *
      * @todo Allow composite primary key look up?
      *
-     * @param mixed $id The identifier.
-     *
-     * @return object|null The object.
      */
     public function find($id)
     {
@@ -241,19 +223,23 @@ abstract class TenantAwareRepository implements ObjectRepository
      * not supported.
      *
      * @param array      $criteria
-     * @param array|null $orderBy  ['field' => 'ASC|DESC']
+     * @param array|null $orderBy ['field' => 'ASC|DESC']
      * @param int|null   $limit
      * @param int|null   $offset
      *
      * @return array The objects.
      *
-     * @throws \UnexpectedValueException
+     * @throws UnexpectedValueException
      */
     public function findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
     {
         $qb = $this->createQueryBuilder('o');
-        if (null !== $offset) $qb->setFirstResult($offset);
-        if (null !== $limit)  $qb->setMaxResults($limit);
+        if (null !== $offset) {
+            $qb->setFirstResult($offset);
+        }
+        if (null !== $limit) {
+            $qb->setMaxResults($limit);
+        }
 
         $this->applyCriteriaAndOrderByToQueryBuilder($qb, $criteria, $orderBy);
 
@@ -264,7 +250,7 @@ abstract class TenantAwareRepository implements ObjectRepository
      * Finds a single entity by a set of criteria.
      *
      * @param array      $criteria
-     * @param array|null $orderBy  ['field' => 'ASC|DESC']
+     * @param array|null $orderBy ['field' => 'ASC|DESC']
      *
      * @return object|null The entity instance or NULL if the entity can not be found.
      */
@@ -286,8 +272,6 @@ abstract class TenantAwareRepository implements ObjectRepository
     {
         return $this->repository->getClassName();
     }
-
-
 
     /**
      * @param QueryBuilder $qb
