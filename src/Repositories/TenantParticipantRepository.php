@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Somnambulist\Tenancy\Repositories;
 
@@ -25,11 +25,6 @@ class TenantParticipantRepository implements RepositoryContract
      */
     protected $repository;
 
-    /**
-     * Constructor.
-     *
-     * @param RepositoryContract $repository
-     */
     public function __construct(RepositoryContract $repository)
     {
         $this->repository = $repository;

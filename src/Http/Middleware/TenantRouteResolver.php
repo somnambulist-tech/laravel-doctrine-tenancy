@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Somnambulist\Tenancy\Http\Middleware;
 
@@ -32,7 +32,7 @@ use function base_path;
  * array of key => patterns.
  *
  * <code>
- * <?php
+ * <?php declare(strict_types=1);
  * // in config/tenancy.php
  * return [
  *      // other stuff omitted
@@ -67,15 +67,6 @@ class TenantRouteResolver extends ServiceProvider
      */
     protected $namespace;
 
-
-    /**
-     * Constructor.
-     *
-     * Amazingly we have to override the constructor because the parent is not type
-     * hinted so won't dependency inject properly.
-     *
-     * @param Application $app
-     */
     public function __construct(Application $app)
     {
         parent::__construct($app);
@@ -98,6 +89,11 @@ class TenantRouteResolver extends ServiceProvider
         return $next($request);
     }
 
+    public function register()
+    {
+
+    }
+
     /**
      * Define your route model bindings, pattern filters, etc.
      *
@@ -109,7 +105,18 @@ class TenantRouteResolver extends ServiceProvider
             $this->app->make('router')->pattern($name, $pattern);
         }
 
-        parent::boot();
+        $this->setRootControllerNamespace();
+
+        if ($this->routesAreCached()) {
+            $this->loadCachedRoutes();
+        } else {
+            $this->loadRoutes();
+
+            $this->app->booted(function () {
+                $this->app['router']->getRoutes()->refreshNameLookups();
+                $this->app['router']->getRoutes()->refreshActionLookups();
+            });
+        }
     }
 
     /**
@@ -143,7 +150,7 @@ class TenantRouteResolver extends ServiceProvider
                         $path = base_path(sprintf('%s/%s.php', $folder, $file));
 
                         if (file_exists($path)) {
-                            require_once $path;
+                            require $path;
 
                             return;
                         }

@@ -1,12 +1,15 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Somnambulist\Tenancy\Console;
 
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Routing\AbstractRouteCollection;
 use Illuminate\Routing\RouteCollection;
 use Illuminate\Routing\Router;
 use Somnambulist\Tenancy\Contracts\DomainAwareTenantParticipantRepository as DomainRepository;
 use Somnambulist\Tenancy\Http\Middleware\TenantRouteResolver;
+use function str_replace;
+use function var_export;
 
 /**
  * Class TenantRouteCacheCommand
@@ -38,16 +41,6 @@ class TenantRouteCacheCommand extends AbstractTenantCommand
      */
     protected $files;
 
-
-
-    /**
-     * Constructor.
-     *
-     * @param DomainRepository    $repository
-     * @param Router              $router
-     * @param TenantRouteResolver $resolver
-     * @param Filesystem          $files
-     */
     public function __construct(DomainRepository $repository, Router $router, TenantRouteResolver $resolver, FileSystem $files)
     {
         parent::__construct($repository, $router, $resolver);
@@ -55,11 +48,6 @@ class TenantRouteCacheCommand extends AbstractTenantCommand
         $this->files = $files;
     }
 
-    /**
-     * Execute the console command.
-     *
-     * @return void
-     */
     public function handle()
     {
         $domain = $this->argument('domain');
@@ -85,29 +73,15 @@ class TenantRouteCacheCommand extends AbstractTenantCommand
         $this->info('Tenant routes cached successfully!');
     }
 
-    /**
-     * Boot a fresh copy of the application and get the routes.
-     *
-     * @param string $domain
-     *
-     * @return RouteCollection
-     */
-    protected function getFreshApplicationRoutes($domain)
+    protected function getFreshApplicationRoutes($domain): AbstractRouteCollection
     {
         return $this->resolveTenantRoutes($domain);
     }
 
-    /**
-     * Build the route cache file.
-     *
-     * @param RouteCollection $routes
-     *
-     * @return string
-     */
-    protected function buildRouteCacheFile(RouteCollection $routes)
+    protected function buildRouteCacheFile(RouteCollection $routes): string
     {
         $stub = $this->files->get(__DIR__ . '/stubs/routes.stub');
 
-        return str_replace('{{routes}}', base64_encode(serialize($routes)), $stub);
+        return str_replace('{{routes}}', var_export($routes->compile(), true), $stub);
     }
 }

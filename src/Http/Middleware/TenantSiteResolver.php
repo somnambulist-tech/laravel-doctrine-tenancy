@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Somnambulist\Tenancy\Http\Middleware;
 
@@ -11,6 +11,7 @@ use Somnambulist\Tenancy\Contracts\DomainAwareTenantParticipant as TenantPartici
 use Somnambulist\Tenancy\Contracts\DomainAwareTenantParticipantRepository as ParticipantRepository;
 use Somnambulist\Tenancy\Entities\NullUser;
 use Somnambulist\Tenancy\View\FileViewFinder as TenantViewFinder;
+use function app;
 
 /**
  * Class TenantSiteResolver
@@ -26,13 +27,6 @@ class TenantSiteResolver
      */
     protected $repository;
 
-
-
-    /**
-     * Constructor.
-     *
-     * @param ParticipantRepository $repository
-     */
     public function __construct(ParticipantRepository $repository)
     {
         $this->repository = $repository;
@@ -70,8 +64,12 @@ class TenantSiteResolver
         $config->set('app.url', $request->getHost());
         $config->set('view.paths', array_merge((array)$config->get('view.paths'), $paths));
 
-        // bind resolved tenant data to container
+        // bind resolved tenant data to container & set route defaults
         app('auth.tenant')->updateTenancy(new NullUser(), $tenant->getTenantOwner(), $tenant);
+        app('url')->defaults([
+            'tenant_owner_id'   => app('auth.tenant')->getTenantOwnerId(),
+            'tenant_creator_id' => app('auth.tenant')->getTenantCreatorId(),
+        ]);
 
         return $next($request);
     }

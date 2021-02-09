@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Somnambulist\Tenancy\Http\Middleware;
 
@@ -26,14 +26,6 @@ class EnsureTenantType
      */
     private $typeResolver;
 
-
-
-    /**
-     * Constructor.
-     *
-     * @param TenantContract     $tenant
-     * @param TenantTypeResolver $typeResolver
-     */
     public function __construct(TenantContract $tenant, TenantTypeResolver $typeResolver)
     {
         $this->tenant       = $tenant;

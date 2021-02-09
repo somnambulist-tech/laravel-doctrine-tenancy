@@ -1,10 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Somnambulist\Tenancy;
 
-use Closure;
 use Illuminate\Config\Repository;
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\ServiceProvider;
 use InvalidArgumentException;
 use RuntimeException;
@@ -32,21 +30,11 @@ use Somnambulist\Tenancy\View\FileViewFinder;
 class TenancyServiceProvider extends ServiceProvider
 {
 
-    /**
-     * Perform post-registration booting of services.
-     *
-     * @return void
-     */
     public function boot()
     {
         $this->publishes([$this->getConfigPath() => config_path('tenancy.php'),], 'config');
     }
 
-    /**
-     * Register the service provider.
-     *
-     * @return void
-     */
     public function register()
     {
         $this->mergeConfig();
@@ -64,28 +52,17 @@ class TenancyServiceProvider extends ServiceProvider
 
         $this->registerTenantCoreServices($config);
         $this->registerTenantAwareViewFinder($config);
-        $this->registerTenantAwareUrlGenerator($config);
 
         $this->registerMultiAccountTenancy($config);
         $this->registerMultiSiteTenancy($config);
         $this->registerTenantAwareRepositories($config);
     }
 
-    /**
-     * Merge config
-     */
     protected function mergeConfig()
     {
         $this->mergeConfigFrom($this->getConfigPath(), 'tenancy');
     }
 
-    /**
-     * Registers the core Tenant services
-     *
-     * @param Repository $config
-     *
-     * @return void
-     */
     protected function registerTenantCoreServices(Repository $config)
     {
         if (!$this->app->resolved(TenantContract::class)) {
@@ -125,45 +102,6 @@ class TenancyServiceProvider extends ServiceProvider
         });
     }
 
-    /**
-     * Register the URL generator service.
-     *
-     * Copy of the Laravel URL generator registering steps
-     *
-     * @param Repository $config
-     *
-     * @return void
-     */
-    protected function registerTenantAwareUrlGenerator(Repository $config)
-    {
-        $this->app->singleton('url',
-            function ($app) {
-                $routes = $app['router']->getRoutes();
-
-                $app->instance('routes', $routes);
-
-                $url = new UrlGenerator(
-                    $routes, $app->rebinding('request', $this->requestRebinder()), $app['auth.tenant']
-                );
-
-                $url->setSessionResolver(function () {
-                    return $this->app['session'];
-                });
-
-                $app->rebinding('routes', function ($app, $routes) {
-                    $app['url']->setRoutes($routes);
-                });
-
-                return $url;
-            }
-        );
-    }
-
-    /**
-     * Set-up multi-account tenancy services
-     *
-     * @param Repository $config
-     */
     protected function registerMultiAccountTenancy(Repository $config)
     {
         if (!$config->get('tenancy.multi_account.enabled', false)) {
@@ -174,11 +112,6 @@ class TenancyServiceProvider extends ServiceProvider
         $this->registerTenantParticipantMappings($config->get('tenancy.multi_account.participant.mappings'));
     }
 
-    /**
-     * Set-up and check the app for multi-site tenancy
-     *
-     * @param Repository $config
-     */
     protected function registerMultiSiteTenancy(Repository $config)
     {
         if (!$config->get('tenancy.multi_site.enabled', false)) {
@@ -202,13 +135,6 @@ class TenancyServiceProvider extends ServiceProvider
         $this->registerTenantParticipantMappings($config->get('tenancy.multi_site.participant.mappings'));
     }
 
-
-
-    /**
-     * @param array $mappings
-     *
-     * @throws BindingResolutionException
-     */
     protected function registerTenantParticipantMappings(array $mappings = [])
     {
         $resolver = $this->app->make('auth.tenant.type_resolver');
@@ -217,11 +143,6 @@ class TenancyServiceProvider extends ServiceProvider
         }
     }
 
-    /**
-     * Register the main tenant participant repository
-     *
-     * @param Repository $config
-     */
     protected function registerMultiAccountParticipantRepository(Repository $config)
     {
         $repository = $config->get('tenancy.multi_account.participant.repository');
@@ -236,11 +157,6 @@ class TenancyServiceProvider extends ServiceProvider
         $this->app->alias(TenantRepositoryContract::class, 'auth.tenant.account_repository');
     }
 
-    /**
-     * Register the main tenant participant repository
-     *
-     * @param Repository $config
-     */
     protected function registerMultiSiteParticipantRepository(Repository $config)
     {
         $repository = $config->get('tenancy.multi_site.participant.repository');
@@ -257,9 +173,6 @@ class TenancyServiceProvider extends ServiceProvider
         $this->app->alias(DomainTenantRepositoryContract::class, 'auth.tenant.site_repository');
     }
 
-    /**
-     * Register console commands
-     */
     protected function registerMultiSiteConsoleCommands()
     {
         $this->commands([
@@ -270,9 +183,6 @@ class TenancyServiceProvider extends ServiceProvider
         ]);
     }
 
-    /**
-     * @param Repository $config
-     */
     protected function registerTenantAwareRepositories(Repository $config)
     {
         foreach ($config->get('tenancy.doctrine.repositories', []) as $details) {
@@ -297,23 +207,6 @@ class TenancyServiceProvider extends ServiceProvider
         }
     }
 
-
-
-    /**
-     * Get the URL generator request rebinder.
-     *
-     * @return Closure
-     */
-    protected function requestRebinder()
-    {
-        return function ($app, $request) {
-            $app['url']->setRequest($request);
-        };
-    }
-
-    /**
-     * @return string
-     */
     protected function getConfigPath()
     {
         return __DIR__ . '/../config/tenancy.php';

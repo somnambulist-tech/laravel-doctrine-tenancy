@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Somnambulist\Tenancy\View;
 
@@ -13,32 +13,15 @@ use Illuminate\View\FileViewFinder as BaseFinder;
 class FileViewFinder extends BaseFinder
 {
 
-    /**
-     * Append a path to the top of the array of paths
-     *
-     * @param string $location
-     *
-     * @return $this
-     */
     public function prependLocation($location)
     {
-        if ($location && !in_array($location, $this->paths)) {
-            array_unshift($this->paths, $location);
+        if ($location) {
+            $location = $this->resolvePath($location);
+
+            if ($location && !in_array($location, $this->paths)) {
+                parent::prependLocation($location);
+            }
         }
-
-        return $this;
-    }
-
-    /**
-     * Reset the entire stack of paths with a new array
-     *
-     * @param array $paths
-     *
-     * @return $this
-     */
-    public function setPaths($paths)
-    {
-        $this->paths = $paths;
 
         return $this;
     }

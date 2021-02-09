@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Somnambulist\Tenancy\Foundation;
 
@@ -80,33 +80,13 @@ class TenantAwareApplication extends Application
         return $default;
     }
 
-    /**
-     * Get the path to the configuration cache file.
-     *
-     * @return string
-     */
     public function getCachedConfigPath()
     {
         return $this->basePath() . '/bootstrap/cache/' . $this->getTenantCacheName('config') . '.php';
     }
 
-    /**
-     * Get the path to the routes cache file.
-     *
-     * @return string
-     */
     public function getCachedRoutesPath()
     {
         return $this->basePath() . '/bootstrap/cache/' . $this->getTenantCacheName('routes') . '.php';
-    }
-
-    /**
-     * Get the path to the cached "compiled.php" file.
-     *
-     * @return string
-     */
-    public function getCachedCompilePath()
-    {
-        return $this->basePath() . '/bootstrap/cache/' . $this->getTenantCacheName('compiled') . '.php';
     }
 }

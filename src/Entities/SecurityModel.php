@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Somnambulist\Tenancy\Entities;
 
@@ -31,9 +31,6 @@ class SecurityModel extends AbstractEnumeration implements SecurityModelContract
     const CLOSED  = 'closed';
     const INHERIT = 'inherit';
 
-    /**
-     * @return string
-     */
     public function __toString()
     {
         return $this->value();

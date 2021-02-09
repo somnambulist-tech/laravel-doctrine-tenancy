@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Somnambulist\Tenancy\Repositories;
 
@@ -56,13 +56,6 @@ abstract class TenantAwareRepository implements ObjectRepository
      */
     protected $tenant;
 
-    /**
-     * Constructor.
-     *
-     * @param EntityManager    $em
-     * @param EntityRepository $repository
-     * @param TenantContract   $tenant
-     */
     public function __construct(EntityManager $em, EntityRepository $repository, TenantContract $tenant)
     {
         $this->em         = $em;

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Somnambulist\Tenancy\Entities;
 
@@ -30,15 +30,6 @@ class Tenant implements TenantContract
      */
     protected $user;
 
-
-
-    /**
-     * Constructor.
-     *
-     * @param Authenticatable           $user
-     * @param TenantParticipantContract $owner
-     * @param TenantParticipantContract $creator
-     */
     public function __construct(Authenticatable $user, TenantParticipantContract $owner, TenantParticipantContract $creator)
     {
         $this->updateTenancy($user, $owner, $creator);

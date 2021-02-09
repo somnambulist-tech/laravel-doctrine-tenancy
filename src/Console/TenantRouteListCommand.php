@@ -1,7 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Somnambulist\Tenancy\Console;
 
+use Closure;
+use Illuminate\Routing\AbstractRouteCollection;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -48,18 +50,13 @@ class TenantRouteListCommand extends AbstractTenantCommand
      */
     protected $headers = ['Domain', 'Method', 'URI', 'Name', 'Action', 'Middleware'];
 
-
-
-    /**
-     * Execute the console command.
-     *
-     * @return void
-     */
     public function handle()
     {
-        $this->resolveTenantRoutes($this->argument('domain'));
+        if (is_null($this->resolveTenantRoutes($this->argument('domain')))) {
+            return;
+        }
 
-        if (count($this->routes) == 0) {
+        if (!$this->routes instanceof AbstractRouteCollection) {
             $this->error("The specified tenant does not have any routes.");
 
             return;
@@ -77,8 +74,7 @@ class TenantRouteListCommand extends AbstractTenantCommand
     {
         $routes = collect($this->routes)->map(function ($route) {
             return $this->getRouteInformation($route);
-        })->all()
-        ;
+        })->all();
 
         if ($sort = $this->option('sort')) {
             $routes = $this->sortRoutes($sort, $routes);
@@ -146,10 +142,12 @@ class TenantRouteListCommand extends AbstractTenantCommand
      */
     protected function getMiddleware($route)
     {
-        return collect($route->gatherMiddleware())->map(function ($middleware) {
-            return $middleware instanceof \Closure ? 'Closure' : $middleware;
-        })->implode(',')
-            ;
+        return collect($route->gatherMiddleware())
+            ->map(function ($middleware) {
+                return $middleware instanceof Closure ? 'Closure' : $middleware;
+            })
+            ->implode(',')
+        ;
     }
 
     /**

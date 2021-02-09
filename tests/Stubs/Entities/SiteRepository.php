@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Somnambulist\Tenancy\Tests\Stubs\Entities;
 
@@ -36,7 +36,10 @@ class SiteRepository implements DomainAwareTenantParticipantRepository
 
     public function findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
     {
-        return null;
+        return [
+            new Site(1, 'example.dev', 'example'),
+            new Site(2, 'testme.com', 'Test Site'),
+        ];
     }
 
     public function findOneBy(array $criteria, array $orderBy = null)

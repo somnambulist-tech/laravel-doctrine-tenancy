@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Somnambulist\Tenancy\Console;
 
@@ -33,16 +33,6 @@ class TenantRouteClearCommand extends AbstractTenantCommand
      */
     protected $files;
 
-
-
-    /**
-     * Constructor.
-     *
-     * @param DomainRepository    $repository
-     * @param Router              $router
-     * @param TenantRouteResolver $resolver
-     * @param Filesystem          $files
-     */
     public function __construct(DomainRepository $repository, Router $router, TenantRouteResolver $resolver, FileSystem $files)
     {
         parent::__construct($repository, $router, $resolver);

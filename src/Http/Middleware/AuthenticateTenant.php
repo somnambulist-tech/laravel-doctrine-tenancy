@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Somnambulist\Tenancy\Http\Middleware;
 
@@ -31,12 +31,6 @@ class AuthenticateTenant
      */
     protected $repository;
 
-    /**
-     * Create a new filter instance.
-     *
-     * @param Guard                       $auth
-     * @param TenantParticipantRepository $repository
-     */
     public function __construct(Guard $auth, TenantParticipantRepository $repository)
     {
         $this->auth       = $auth;

@@ -1,0 +1,39 @@
+#!/usr/bin/env php
+<?php
+
+/*
+|--------------------------------------------------------------------------
+| Register The Auto Loader
+|--------------------------------------------------------------------------
+|
+| Composer provides a convenient, automatically generated class loader
+| for our application. We just need to utilize it! We'll require it
+| into the script here so that we do not have to worry about the
+| loading of any our classes "manually". Feels great to relax.
+|
+*/
+
+use Illuminate\Contracts\Debug\ExceptionHandler;
+use Illuminate\Contracts\Http\Kernel;
+use Illuminate\Foundation\Exceptions\Handler;
+use Somnambulist\Tenancy\Foundation\TenantAwareApplication;
+use Somnambulist\Tenancy\Tests\Stubs\Console;
+use Somnambulist\Tenancy\Tests\Stubs\Http;
+
+require __DIR__ . '/../../vendor/autoload.php';
+
+$app = new TenantAwareApplication(__DIR__ . '/laravel');
+$app->singleton(Kernel::class, Http::class);
+$app->singleton(Illuminate\Contracts\Console\Kernel::class, Console::class);
+$app->singleton(ExceptionHandler::class, Handler::class);
+
+$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+
+$status = $kernel->handle(
+    $input = new Symfony\Component\Console\Input\ArgvInput,
+    new Symfony\Component\Console\Output\ConsoleOutput
+);
+
+$kernel->terminate($input, $status);
+
+exit($status);

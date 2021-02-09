@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 use Somnambulist\Tenancy\Tests\Stubs\Entities\Site;
 use Somnambulist\Tenancy\Tests\Stubs\Entities\SiteRepository;

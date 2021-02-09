@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Somnambulist\Tenancy\Services;
 
@@ -24,9 +24,6 @@ class TenantTypeResolver
      */
     private $mappings;
 
-    /**
-     * Constructor.
-     */
     public function __construct()
     {
         $this->mappings = new Collection();

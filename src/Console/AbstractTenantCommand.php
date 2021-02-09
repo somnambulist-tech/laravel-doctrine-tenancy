@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Somnambulist\Tenancy\Console;
 
@@ -46,15 +46,6 @@ abstract class AbstractTenantCommand extends Command
      */
     protected $routes;
 
-
-
-    /**
-     * Constructor.
-     *
-     * @param DomainRepository    $repository
-     * @param Router              $router
-     * @param TenantRouteResolver $resolver
-     */
     public function __construct(DomainRepository $repository, Router $router, TenantRouteResolver $resolver)
     {
         parent::__construct();

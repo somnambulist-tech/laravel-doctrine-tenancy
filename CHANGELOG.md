@@ -1,6 +1,29 @@
 Change Log
 ==========
 
+2021-02-09
+----------
+
+Changed:
+
+ * Properly support Laravel 7/8
+ * Remove unneeded URL overrides - now uses the defaultParameters on resolution
+ * Fix route loading issues and add test cases
+ * Fix adding view routes that should not be added  
+ * Add view resolution test cases
+ * Add tests for CLI commands
+
+2021-01-07
+----------
+
+Changed:
+
+ * Require PHP >=7.3
+ * Require Laravel 7+
+ * Removed event subscriber for setting tenancy, tenancy should be set on object creation
+ * Update documentation with new examples
+ * Enable strict-types
+
 2019-12-27
 ----------
 

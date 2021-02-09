@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Somnambulist\Tenancy\Console;
 
@@ -41,13 +41,6 @@ class TenantListCommand extends Command
      */
     protected $repository;
 
-
-
-    /**
-     * Constructor.
-     *
-     * @param DomainAwareTenantParticipantRepository $repository
-     */
     public function __construct(DomainAwareTenantParticipantRepository $repository)
     {
         parent::__construct();
@@ -55,11 +48,6 @@ class TenantListCommand extends Command
         $this->repository = $repository;
     }
 
-    /**
-     * Execute the console command.
-     *
-     * @return void
-     */
     public function handle()
     {
         $data = [];

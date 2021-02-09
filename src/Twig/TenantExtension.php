@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Somnambulist\Tenancy\Twig;
 
@@ -23,27 +23,11 @@ class TenantExtension extends AbstractExtension
      */
     protected $tenant;
 
-    /**
-     * Create a new html extension
-     *
-     * @param TenantContract $tenant
-     */
     public function __construct(TenantContract $tenant)
     {
         $this->tenant = $tenant;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getName()
-    {
-        return 'Somnambulist_Tenancy_Twig_TenantExtension';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function getFunctions()
     {
         return [
