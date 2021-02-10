@@ -9,6 +9,7 @@ use Somnambulist\Tenancy\Contracts\BelongsToTenant as BelongsToTenantContract;
 use Somnambulist\Tenancy\Contracts\Tenant as TenantContract;
 use Somnambulist\Tenancy\Contracts\TenantParticipant as TenantParticipantContract;
 use Somnambulist\Tenancy\Contracts\TenantParticipantRepository;
+use function app;
 
 /**
  * Class AuthenticateTenant
@@ -87,6 +88,12 @@ class AuthenticateTenant
         $request->route()->forgetParameter('tenant_creator_id');
 
         $tenant->updateTenancy($user, $creator->getTenantOwner(), $creator);
+
+        // replace route tenant info with the resolved, authenticated users tenant info
+        app('url')->defaults([
+            'tenant_owner_id'   => $tenant->getTenantOwnerId(),
+            'tenant_creator_id' => $tenant->getTenantCreatorId(),
+        ]);
 
         return $next($request);
     }

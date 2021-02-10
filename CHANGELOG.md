@@ -11,6 +11,7 @@ Changed:
  * Update view loading to reduce steps
  * Update `Traits` to `Entities\Concerns`
  * Fix changes in Doctrine interfaces
+ * Fix `AuthenticateTenant` needs to update route defaults after resolving users tenancy
 
 Removed:
 
