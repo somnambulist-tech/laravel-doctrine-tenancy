@@ -49,10 +49,7 @@ class TenancyServiceProvider extends ServiceProvider
             return;
         }
 
-
         $this->registerTenantCoreServices($config);
-        $this->registerTenantAwareViewFinder($config);
-
         $this->registerMultiAccountTenancy($config);
         $this->registerMultiSiteTenancy($config);
         $this->registerTenantAwareRepositories($config);
@@ -86,22 +83,6 @@ class TenancyServiceProvider extends ServiceProvider
         $this->app->alias(TenantTypeResolver::class, 'auth.tenant.type_resolver');
     }
 
-    /**
-     * Re-register the view finder with one that allows manipulating the paths array
-     *
-     * @param Repository $config
-     *
-     * @return void
-     */
-    protected function registerTenantAwareViewFinder(Repository $config)
-    {
-        $this->app->bind('view.finder', function ($app) use ($config) {
-            $paths = $config['view.paths'];
-
-            return new FileViewFinder($app['files'], $paths);
-        });
-    }
-
     protected function registerMultiAccountTenancy(Repository $config)
     {
         if (!$config->get('tenancy.multi_account.enabled', false)) {
@@ -125,9 +106,7 @@ class TenancyServiceProvider extends ServiceProvider
         }
 
         /*
-         * @todo Need a way to detect if RouteServiceProvider (or at least an instance of
-         *       Foundation\RouteServiceProvider) has been registered and to fail with a
-         *       warning if so.
+         * @todo Need a way to detect if an app RouteServiceProvider is registered as it needs replacing.
          */
 
         $this->registerMultiSiteParticipantRepository($config);

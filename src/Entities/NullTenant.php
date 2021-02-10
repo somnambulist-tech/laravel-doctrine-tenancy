@@ -3,7 +3,7 @@
 namespace Somnambulist\Tenancy\Entities;
 
 use Somnambulist\Tenancy\Contracts\DomainAwareTenantParticipant as DomainAwareTenantParticipantContract;
-use Somnambulist\Tenancy\Traits\TenantParticipant;
+use Somnambulist\Tenancy\Entities\Concerns\TenantParticipant;
 
 /**
  * Class NullTenant

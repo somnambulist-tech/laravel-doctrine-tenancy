@@ -12,6 +12,12 @@ use Somnambulist\Tenancy\Contracts\DomainAwareTenantParticipantRepository as Par
 use Somnambulist\Tenancy\Entities\NullUser;
 use Somnambulist\Tenancy\View\FileViewFinder as TenantViewFinder;
 use function app;
+use function array_filter;
+use function array_merge;
+use function array_unique;
+use function array_values;
+use function base_path;
+use function realpath;
 
 /**
  * Class TenantSiteResolver
@@ -53,16 +59,9 @@ class TenantSiteResolver
             );
         }
 
-        $finder = $view->getFinder();
-        if ($finder instanceof TenantViewFinder) {
-            $paths = $this->appendPathsInFinder($finder, $tenant);
-        } else {
-            $paths = $this->registerPathsInFinder($view, $finder, $tenant);
-        }
-
         // update app config
         $config->set('app.url', $request->getHost());
-        $config->set('view.paths', array_merge((array)$config->get('view.paths'), $paths));
+        $config->set('view.paths', array_merge((array)$config->get('view.paths'), $this->registerPathsInFinder($view, $tenant)));
 
         // bind resolved tenant data to container & set route defaults
         app('auth.tenant')->updateTenancy(new NullUser(), $tenant->getTenantOwner(), $tenant);
@@ -75,88 +74,24 @@ class TenantSiteResolver
     }
 
     /**
-     * Prepends the view paths to the FileViewFinder, provided it has been replaced
-     *
-     * @param TenantViewFinder  $finder
-     * @param TenantParticipant $tenant
-     *
-     * @return array
-     */
-    protected function appendPathsInFinder(TenantViewFinder $finder, TenantParticipant $tenant)
-    {
-        $finder->prependLocation($this->createViewPath($tenant->getTenantOwner()->getDomain()));
-        $finder->prependLocation($this->createViewPath($tenant->getDomain()));
-
-        return $finder->getPaths();
-    }
-
-    /**
      * Registers the view paths by creating a new array and injecting a new FileViewFinder
      *
      * @param Factory           $view
-     * @param FileViewFinder    $finder
      * @param TenantParticipant $tenant
      *
      * @return array
      */
-    protected function registerPathsInFinder(Factory $view, FileViewFinder $finder, TenantParticipant $tenant)
+    protected function registerPathsInFinder(Factory $view, TenantParticipant $tenant)
     {
-        $paths = [];
-        $this->addPathToViewPaths($paths, $tenant->getDomain());
-        $this->addPathToViewPaths($paths, $tenant->getTenantOwner()->getDomain());
-        $paths = array_merge($paths, $finder->getPaths());
+        $tenantViewPaths = [
+            realpath(base_path('resources/views/' . $tenant->getDomain())),
+            realpath(base_path('resources/views/' . $tenant->getTenantOwner()->getDomain())),
+        ];
 
-        $finder = $this->createViewFinder($finder, $paths);
+        $paths = array_values(array_unique(array_merge(array_filter($tenantViewPaths), $view->getFinder()->getPaths())));
 
-        // replace ViewFinder in ViewManager with new instance with ordered paths
-        $view->setFinder($finder);
+        $view->getFinder()->setPaths($paths);
 
         return $paths;
-    }
-
-    /**
-     * Creates a new FileViewFinder, copying the current contents
-     *
-     * @param FileViewFinder $finder
-     * @param array          $paths
-     *
-     * @return FileViewFinder
-     */
-    protected function createViewFinder(FileViewFinder $finder, array $paths = [])
-    {
-        $new = new FileViewFinder(app('files'), $paths, $finder->getExtensions());
-
-        foreach ($finder->getHints() as $namespace => $hints) {
-            $new->addNamespace($namespace, $hints);
-        }
-
-        return $new;
-    }
-
-    /**
-     * @param array  $paths
-     * @param string $host
-     *
-     * @return string
-     */
-    protected function addPathToViewPaths(array &$paths, $host)
-    {
-        $path = $this->createViewPath($host);
-
-        if ($path && !in_array($path, $paths)) {
-            $paths[] = $path;
-        }
-
-        return $path;
-    }
-
-    /**
-     * @param string $host
-     *
-     * @return string
-     */
-    protected function createViewPath($host)
-    {
-        return realpath(base_path('resources/views/' . $host));
     }
 }

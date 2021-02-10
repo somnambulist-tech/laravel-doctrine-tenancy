@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Somnambulist\Tenancy\Traits;
+namespace Somnambulist\Tenancy\Entities\Concerns;
 
 /**
  * Trait DomainAwareTenantParticipant
  *
- * @package    Somnambulist\Tenancy\Traits
- * @subpackage Somnambulist\Tenancy\Traits\DomainAwareTenantParticipant
+ * @package    Somnambulist\Tenancy\Entities\Concerns
+ * @subpackage Somnambulist\Tenancy\Entities\Concerns\DomainAwareTenantParticipant
  */
 trait DomainAwareTenantParticipant
 {

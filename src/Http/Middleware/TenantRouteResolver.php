@@ -91,14 +91,9 @@ class TenantRouteResolver extends ServiceProvider
 
     public function register()
     {
-
+        // override the parent register as we need to run on kernel boot instead
     }
 
-    /**
-     * Define your route model bindings, pattern filters, etc.
-     *
-     * @return void
-     */
     public function boot()
     {
         foreach ($this->app->make('config')->get('tenancy.multi_site.router.patterns', []) as $name => $pattern) {
@@ -120,7 +115,7 @@ class TenantRouteResolver extends ServiceProvider
     }
 
     /**
-     * Define the routes for the application.
+     * Ensures that routes are checked in order of creator -> owner -> default. Will check for web and api.
      *
      * @param Router $router
      *
@@ -133,7 +128,7 @@ class TenantRouteResolver extends ServiceProvider
         $router->group(
             ['namespace' => $this->namespace],
             function ($router) use ($tenant) {
-                $tries    = ['routes', 'web',];
+                $tries    = ['routes', 'web', 'api',];
                 $failures = [];
 
                 if ($tenant->getTenantOwner() instanceof DomainAwareTenantParticipant) {

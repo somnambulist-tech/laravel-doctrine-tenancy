@@ -54,8 +54,6 @@ class Tenant implements TenantContract
         return $this;
     }
 
-
-
     /**
      * @return integer
      */

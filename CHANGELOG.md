@@ -1,17 +1,37 @@
 Change Log
 ==========
 
+2021-02-10
+----------
+
+Changed:
+
+ * Added `api` to fallbacks in TenantRouteResolver
+ * Update view loading to reduce steps
+ * Update `Traits` to `Entities\Concerns`
+ * Added `final` to the bundled `SecurityModel` as it cannot be extended
+
+Removed:
+
+ * Remove FileViewFinder override class as the necessary functionality is in Laravel
+
 2021-02-09
 ----------
 
 Changed:
 
  * Properly support Laravel 7/8
- * Remove unneeded URL overrides - now uses the defaultParameters on resolution
  * Fix route loading issues and add test cases
  * Fix adding view routes that should not be added  
  * Add view resolution test cases
  * Add tests for CLI commands
+
+Removed:
+
+ * Remove custom URLGenerator and RouteURLGenerator classes
+ * Remove unneeded URL overrides - now uses the defaultParameters on resolution
+ * Remove EntityOwnerEventSubscriber - tenancy should be added on entity creation
+ 
 
 2021-01-07
 ----------

@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Somnambulist\Tenancy\Traits;
+namespace Somnambulist\Tenancy\Entities\Concerns;
 
 use Somnambulist\Tenancy\Contracts\Tenant as TenantContract;
 
 /**
  * Trait TenantAware
  *
- * @package    Somnambulist\Tenancy\Traits
- * @subpackage Somnambulist\Tenancy\Traits\TenantAware
+ * @package    Somnambulist\Tenancy\Entities\Concerns
+ * @subpackage Somnambulist\Tenancy\Entities\Concerns\TenantAware
  */
 trait TenantAware
 {
@@ -22,8 +22,6 @@ trait TenantAware
      * @var integer
      */
     protected $tenantCreatorId;
-
-
 
     /**
      * @param TenantContract $tenant

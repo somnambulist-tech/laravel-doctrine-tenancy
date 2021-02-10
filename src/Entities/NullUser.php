@@ -7,7 +7,7 @@ use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Somnambulist\Tenancy\Contracts\BelongsToTenant as BelongsToTenantContract;
 use Somnambulist\Tenancy\Contracts\BelongsToTenantParticipant as BelongsToTenantParticipantContract;
 use Somnambulist\Tenancy\Contracts\TenantParticipant;
-use Somnambulist\Tenancy\Traits\BelongsToTenant;
+use Somnambulist\Tenancy\Entities\Concerns\BelongsToTenant;
 
 /**
  * Class NullUser

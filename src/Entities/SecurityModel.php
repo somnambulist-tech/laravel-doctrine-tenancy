@@ -23,7 +23,7 @@ use Somnambulist\Tenancy\Contracts\SecurityModel as SecurityModelContract;
  * @method static SecurityModel CLOSED()
  * @method static SecurityModel INHERIT()
  */
-class SecurityModel extends AbstractEnumeration implements SecurityModelContract
+final class SecurityModel extends AbstractEnumeration implements SecurityModelContract
 {
 
     const SHARED  = 'shared';

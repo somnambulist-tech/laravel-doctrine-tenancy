@@ -34,7 +34,7 @@ The tenant participant may be a polymorphic entity e.g.: one that uses single ta
 
 Provides an alias to the tenant participant for easier referencing.
 
-_Note:_ this is not a container alias but used internally for tagging routes. e.g.:
+__Note:__ this is not a container alias but used internally for tagging routes. e.g.:
 the participant class is \App\Entity\SomeType\TheActualInstanceClass and in the routes we want
 to restrict to this type. Instead of using the whole class name, it can be aliased to "short_name".
 
@@ -112,14 +112,14 @@ Increasing in complexity, the next level is domain-name based tenancy. Multiple 
 a single app folder. This is usually some form of white-labelling setup i.e. the same application
 is re-skinned with different branding but the underlying app is practically the same.
 
-_Note:_ this is a substantial increase in difficulty from single app tenancy. You will need to
+__Note:__ this is a substantial increase in difficulty from single app tenancy. You will need to
 change the Application instance in /bootstrap/app.php to use:
 
     Somnambulist\Tenancy\Foundation\TenantAwareApplication
 
-_Note:_ you have to remove RouteServiceProvider and add TenantRouteResolver middleware.
+__Note:__ you have to remove RouteServiceProvider and add TenantRouteResolver middleware.
 
-_Note:_ you must ensure that any caches you use can handle per-site caching.
+__Note:__ you must ensure that any caches you use can handle per-site caching.
 
 In addition, this form of tenancy requires a middleware to run all the time to resolve the current
 tenant information before any users login or the main app actually runs. If using a database for
@@ -142,8 +142,10 @@ Routes are searched for in several locations:
  * app/Http/<owner_domain>
  * routes/routes
  * routes/web
+ * routes/api
  * app/Http/routes
  * app/Http/web
+ * app/Http/api
 
 A single set of routes can be shared with all sites. If neither app/Http or routes exists, no routes
 will be loaded and an exception raised with the paths that were tried.
@@ -180,15 +182,15 @@ Template path order is reset to:
 
 This way templates should be evaluated from most specific to least specific.
 
-_Note:_ auth.tenant is initialised with the tenant owner / creator and a NullUser.
+__Note:__ auth.tenant is initialised with the tenant owner / creator and a NullUser.
 
 #### Multi-Site with Multi-Account Tenancy
 
-_Note:_ this is the most complex scenario. TenantAwareApplication is required.
+__Note:__ this is the most complex scenario. TenantAwareApplication is required.
 
-_Note:_ you have to remove RouteServiceProvider and add TenantRouteResolver middleware.
+__Note:__ you have to remove RouteServiceProvider and add TenantRouteResolver middleware.
 
-_Note:_ you must ensure that any caches you use can handle per-site caching.
+__Note:__ you must ensure that any caches you use can handle per-site caching.
 
 This is a combination of both methods where there are multiple tenants per multi-site. In this
 configuration there are limitations on the security that can be implemented unless a custom
@@ -209,17 +211,16 @@ tenancy. As such, this essentially results in double tenancy resolution.
 This setup is not recommended as it could lead to hard to diagnose issues, but is included as it
 is technically feasible with the current implementation.
 
-_Note:_ auth.tenant is initialised with the tenant owner / creator and a NullUser but after
+__Note:__ auth.tenant is initialised with the tenant owner / creator and a NullUser but after
 User authentication will be updated with the current, authenticated user and any changes to the
 creator tenant as needed. The owner tenant should still be the same as the creator must be a
 child of the owner.
 
 ### Requirements
 
- * PHP 5.5+
- * laravel 5.1+
+ * PHP 7.3+
+ * Laravel 7+
  * laravel-doctrine/orm
- * somnambulist/laravel-doctrine-behaviours
 
 ### Installation
 
@@ -229,93 +230,94 @@ Install using composer, or checkout / pull the files from github.com.
 
 ### Setup / Getting Started
 
- * add \Somnambulist\Tenancy\TenancyServiceProvider::class to your config/app.php
- * add \Somnambulist\Tenancy\EventSubscribers\TenantOwnerEventSubscriber::class to config/doctrine.php subscribers
+ * add `Somnambulist\Tenancy\TenancyServiceProvider::class` to your config/app.php
+ * add `Somnambulist\Tenancy\EventSubscribers\TenantOwnerEventSubscriber::class` to config/doctrine.php subscribers
  * create or import the config/tenancy.php file
- * create your TenantParticipant entity / repository and add to the config file
+ * create your `TenantParticipant` entity / repository and add to the config file
  * create your participant mappings in the config file (at least class => class)
- * create your User with tenancy support
- * create an App\Http\Controller\TenantController to handle the various tenant redirects
+ * create your `User` with tenancy support
+ * create an `App\Http\Controller\TenantController` to handle the various tenant redirects
  * add the basic routes
  * for multi-site
    * in bootstrap/app.php
-     * change Application instance to \Somnambulist\Tenancy\Foundation\TenantAwareApplication
-     * _Note:_ if multi-site is enabled and this changed is not made, an exception will be raised.
+     * change Application instance to `Somnambulist\Tenancy\Foundation\TenantAwareApplication`
+     * __Note:__ if multi-site is enabled and this changed is not made, an exception will be raised.
    * in HttpKernel:
-     * add TenantSiteResolver middleware to middleware, after CheckForMaintenanceMode
-     * add TenantRouteResolver middleware to middleware, after TenantSiteResolver
+     * add `TenantSiteResolver` middleware to middleware, after CheckForMaintenanceMode
+     * add `TenantRouteResolver` middleware to middleware, after TenantSiteResolver
      * remove RouteServiceProvider from config/app.php
  * for standard app tenancy and/or for tenancy within multi-site
-   * add AuthenticateTenant as auth.tenant to HttpKernel route middlewares
-   * add EnsureTenantType as auth.tenant.type to HttpKernel route middlewares
-
-#### Doctrine Event Subscriber
-
-An event subscriber is provided that will automatically set the tenancy information on any
-tenant aware entity upon persist. Note that this only occurs on prePersist and once created
-should not be modified. If this information is subsequently removed, then records may simply
-disappear when accessing the tenant aware repositories.
+   * add `AuthenticateTenant` as auth.tenant to HttpKernel route middlewares
+   * add `EnsureTenantType` as auth.tenant.type to HttpKernel route middlewares
 
 #### Example User
 
 The following is an example of a tenant aware user that has a single tenant:
 
-    <?php
-    namespace App\Entity;
+```php
+<?php
+namespace App\Entity;
 
-    use Somnambulist\Tenancy\Contracts\BelongsToTenant as BelongsToTenantContract;
-    use Somnambulist\Tenancy\Contracts\BelongsToTenantParticipants;
-    use Somnambulist\Tenancy\Contracts\TenantParticipant;
-    use Somnambulist\Tenancy\Traits\BelongsToTenant;
-    class User implements AuthenticatableContract, AuthorizableContract,
-           CanResetPasswordContract, BelongsToTenantContract, BelongsToTenantParticipant
+use Somnambulist\Tenancy\Contracts\BelongsToTenant as BelongsToTenantContract;
+use Somnambulist\Tenancy\Contracts\BelongsToTenantParticipant;
+use Somnambulist\Tenancy\Contracts\TenantParticipant;
+use Somnambulist\Tenancy\Entities\Concerns\BelongsToTenant;
+
+class User implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract, BelongsToTenantContract, BelongsToTenantParticipant
+{
+    use BelongsToTenant;
+
+    protected $tenant;
+
+    public function __construct(TenantParticipant $tenant)
     {
-        use BelongsToTenant;
-
-        protected $tenant;
-
-        public function getTenantParticipant()
-        {
-            return $this->tenant;
-        }
-
-        public function setTenantParticipant(TenantParticipant $tenant)
-        {
-            $this->tenant = $tenant;
-        }
+        $this->tenant = $tenant;
     }
+
+    public function getTenantParticipant()
+    {
+        return $this->tenant;
+    }
+}
+```
+
+You should always set the tenancy whenever you create an entity. In previous versions there was an
+event subscriber to discover it from the current request, however it has been removed as the tenant
+information is a critical part of the record, and it is safer to always require it.
 
 #### Example Tenant Participant
 
 The following is an example of a tenant participant:
 
-    <?php
-    namespace App\Entity;
+```php
+<?php
+namespace App\Entity;
 
-    use Somnambulist\Doctrine\Traits\Identifiable;
-    use Somnambulist\Doctrine\Traits\Nameable;
-    use Somnambulist\Tenancy\Contracts\TenantParticipant as TenantParticipantContract;
-    use Somnambulist\Tenancy\Traits\TenantParticipant;
+use Somnambulist\Tenancy\Contracts\TenantParticipant as TenantParticipantContract;
+use Somnambulist\Tenancy\Entities\Concerns\TenantParticipant;
 
-    class Account implements TenantParticipantContract
-    {
-        use Identifiable;
-        use Nameable;
-        use TenantParticipant;
-    }
+class Account implements TenantParticipantContract
+{
+    
+    use TenantParticipant;
+}
+```
 
 #### Basic Routes
 
 The two authentication middlewares expect the following routes to be defined and available:
 
-    // tenant selection and error routes
-    Route::group(['prefix' => 'tenant', 'as' => 'tenant.', 'middleware' => ['auth']], function () {
-        Route::get('select',          ['as' => 'select_tenant',             'uses' => 'TenantController@selectTenantAction']);
-        Route::get('no-tenants',      ['as' => 'no_tenants',                'uses' => 'TenantController@noTenantsAvailableAction']);
-        Route::get('no-access',       ['as' => 'access_denied',             'uses' => 'TenantController@accessDeniedAction']);
-        Route::get('not-supported',   ['as' => 'tenant_type_not_supported', 'uses' => 'TenantController@tenantTypeNotSupportedAction']);
-        Route::get('invalid-request', ['as' => 'invalid_tenant_hierarchy',  'uses' => 'TenantController@invalidHierarchyAction']);
-    });
+```php
+<?php
+// tenant selection and error routes
+Route::group(['prefix' => 'tenant', 'as' => 'tenant.', 'middleware' => ['auth']], function () {
+    Route::get('select',          ['as' => 'select_tenant',             'uses' => 'TenantController@selectTenantAction']);
+    Route::get('no-tenants',      ['as' => 'no_tenants',                'uses' => 'TenantController@noTenantsAvailableAction']);
+    Route::get('no-access',       ['as' => 'access_denied',             'uses' => 'TenantController@accessDeniedAction']);
+    Route::get('not-supported',   ['as' => 'tenant_type_not_supported', 'uses' => 'TenantController@tenantTypeNotSupportedAction']);
+    Route::get('invalid-request', ['as' => 'invalid_tenant_hierarchy',  'uses' => 'TenantController@invalidHierarchyAction']);
+});
+```
 
 As a separate block (or within the previous section) add the areas of the application that
 require tenancy support / enforcement. These routes should be prefixed with at least:
@@ -323,18 +325,21 @@ require tenancy support / enforcement. These routes should be prefixed with at l
 middleware to validate that the creator belongs to the owner as well as the current user
 having access to the creator.
 
-_Note:_ the user does not need access to the tenant owner, access to the tenant creator implies
+__Note:__ the user does not need access to the tenant owner, access to the tenant creator implies
 permission to access a sub-set of the data.
 
-    // Tenant Aware Routes
-    Route::group(['prefix' => 'account/{tenant_creator_id}', 'as' => 'tenant.', 'namespace' => 'Tenant', 'middleware' => ['auth', 'auth.tenant']], function () {
-        Route::get('/', ['as' => 'index', 'uses' => 'DashboardController@indexAction']);
+```php
+<?php
+// Tenant Aware Routes
+Route::group(['prefix' => 'account/{tenant_creator_id}', 'as' => 'tenant.', 'namespace' => 'Tenant', 'middleware' => ['auth', 'auth.tenant']], function () {
+    Route::get('/', ['as' => 'index', 'uses' => 'DashboardController@indexAction']);
 
-        // routes that should be limited to certain ParticipantTypes
-        Route::group(['prefix' => 'customer', 'as' => 'customer.', 'namespace' => 'Customer', 'middleware' => ['auth.tenant.type:crm']], function () {
-            Route::get('/', ['as' => 'index', 'uses' => 'CustomerController@indexAction']);
-        });
+    // routes that should be limited to certain ParticipantTypes
+    Route::group(['prefix' => 'customer', 'as' => 'customer.', 'namespace' => 'Customer', 'middleware' => ['auth.tenant.type:crm']], function () {
+        Route::get('/', ['as' => 'index', 'uses' => 'CustomerController@indexAction']);
     });
+});
+```
 
 #### AuthController Changes
 
@@ -342,49 +347,57 @@ When using tenancy, the AuthController must be modified to include the redirecto
 to know where to go to after a successful login. If your AuthController is the standard
 Laravel provided one, simply add an authenticated method:
 
-    class AuthController extends Controller
-    {
-        /**
-         * @param Request $request
-         * @param User    $user
-         *
-         * @return \Illuminate\Http\RedirectResponse
-         */
-        protected function authenticated($request, $user)
-        {
-            // do post authentication stuff...
-            //$user->setLastLogin(Carbon::now());
-            //$em = app('em');
-            //$em->flush($user);
+```php
+<?php
 
-            // redirect to tenant uri
-            return app('auth.tenant.redirector')->resolve($user);
-        }
+class AuthController extends Controller
+{
+    /**
+     * @param Request $request
+     * @param User    $user
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    protected function authenticated($request, $user)
+    {
+        // do post authentication stuff...
+        //$user->setLastLogin(Carbon::now());
+        //$em = app('em');
+        //$em->flush($user);
+
+        // redirect to tenant uri
+        return app('auth.tenant.redirector')->resolve($user);
     }
+}
+```
 
 In addition, if you allow registration of new users you will need to now add support for the
 tenancy component. This must be done by overriding the postRegister method:
 
-    class AuthController ...
+```php
+<?php
+
+class AuthController ...
+{
+    public function postRegister(Request $request)
     {
-        public function postRegister(Request $request)
-        {
-            $validator = $this->validator($request->all());
+        $validator = $this->validator($request->all());
 
-            if ($validator->fails()) {
-                $this->throwValidationException(
-                    $request,
-                    $validator
-                );
-            }
-
-            $user = $this->create($request->all());
-            Auth::login($user);
-
-            // call into redirector which was previously mapped above
-            return $this->authenticated($request, $user);
+        if ($validator->fails()) {
+            $this->throwValidationException(
+                $request,
+                $validator
+            );
         }
+
+        $user = $this->create($request->all());
+        Auth::login($user);
+
+        // call into redirector which was previously mapped above
+        return $this->authenticated($request, $user);
     }
+}
+```
 
 It is up to the implementer to figure out what to do with new registrations or if this
 should even be allowed.
@@ -394,70 +407,54 @@ should even be allowed.
 Finally you need something that is actually tenant aware! So lets create a really basic
 customer:
 
-    <?php
-    namespace App\Entity;
+```php
+<?php
+namespace App\Entity;
 
-    use Somnambulist\Doctrine\Contracts\GloballyTrackable as GloballyTrackableContract;
-    use Somnambulist\Doctrine\Traits\GloballyTrackable;
-    use Somnambulist\Tenancy\Contracts\TenantAware as TenantAwareContract;
-    use Somnambulist\Tenancy\Traits\TenantAware;
+use Somnambulist\Tenancy\Contracts\TenantAware as TenantAwareContract;
+use Somnambulist\Tenancy\Entities\Concerns\TenantAware;
 
-    class Customer implements GloballyTrackableContract, TenantAwareContract
-    {
-        use GloballyTrackable;
-        use TenantAware;
-    }
+class Customer implements TenantAwareContract
+{
+    use TenantAware;
+}
+```
 
 This creates a Customer entity that will track the tenant information. To save typing
 this uses the built-in trait. A corresponding repository will need to be created along with
-the Doctrine mapping file. Here is an example yaml file:
+the Doctrine mapping file. Here is an example XML mapping file:
 
-    App\Entity\Customer:
-        type: entity
-        table: customers
-        repositoryClass: App\Repository\CustomerRepository
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+    <entity name="App\Entity\Customer" table="customers" repository-class="App\Repository\CustomerRepository">
+        <unique-constraints>
+            <unique-constraint xml:id="uniq_customers_uuid" columns="uuid" />
+        </unique-constraints>
 
-        uniqueConstraints:
-            uniq_customers_uuid:
-                columns: [ uuid ]
-
-        id:
-            id:
-                type: bigint
-                generator:
-                    strategy: auto
-
-        fields:
-            uuid:
-                type: guid
-
-            tenantOwnerId:
-                type: integer
-
-            tenantCreatorId:
-                type: integer
-
-            name:
-                type: string
-                length: 255
-
-            createdBy:
-                type: string
-                length: 36
-
-            updatedBy:
-                type: string
-                length: 36
-
-            createdAt:
-                type: datetime
-
-            updatedAt:
-                type: datetime
+        <id name="id" type="integer">
+            <generator strategy="IDENTITY"/>
+            <options>
+                <option name="unsigned">true</option>
+            </options>
+        </id>
+        
+        <field name="uuid" type="guid" />
+        <field name="tenantOwnerId" type="integer" />
+        <field name="tenantCreatorId" type="integer" />
+        <field name="name" type="string" length="255" />
+        <field name="createdBy" type="string" length="36" />
+        <field name="updatedBy" type="string" length="36" />
+        <field name="createdAt" type="datetime" />
+        <field name="updatedAt" type="datetime" />
+    </entity>
+</doctrine-mapping>
+```
 
 #### Tenant Aware Repositories
 
-_Note:_ applies to Doctrine only.
+__Note:__ applies to Doctrine only.
 
 Tenant aware repositories simply wrap an existing entity repository with the standard
 repository interface. They should be defined and created as we actually want to be
@@ -469,41 +466,47 @@ First you will need to create an App level TenantAwareRepository that extends:
 
 For example:
 
-    <?php
-    namespace App\Repository;
+```php
+<?php
+namespace App\Repository;
 
-    use Somnambulist\Tenancy\Repositories\TenantAwareRepository;
+use Somnambulist\Tenancy\Repositories\TenantAwareRepository;
 
-    class AppTenantAwareRepository extends TenantAwareRepository
-    {
+class AppTenantAwareRepository extends TenantAwareRepository
+{
 
-    }
+}
+```
 
 Provided you don't have a custom security model, this should be good to extend again
 as a namespaced "tenant" repository for our customer:
 
-    <?php
-    namespace App\Repository\TenantAware;
+```php
+<?php
+namespace App\Repository\TenantAware;
 
-    use App\Repository\AppTenantAwareRepository;
+use App\Repository\AppTenantAwareRepository;
 
-    class CustomerRepository extends AppTenantAwareRepository
-    {
+class CustomerRepository extends AppTenantAwareRepository
+{
 
-    }
+}
+```
 
 Now, the config/tenancy.php can be updated to add a repository config definition so this class
 will be automatically available in the container.
 
-_Note:_ this step presumes the standard repository is already mapped to the container using
+__Note:__ this step presumes the standard repository is already mapped to the container using
 the repository class as the key.
 
+```php
     [
         'repository' => \App\Repository\TenantAware\CustomerRepository::class,
         'base'       => \App\Repository\CustomerRepository::class,
         //'alias'      => 'app.repository.tenant_aware_customer', // optionally alias
         //'tags'       => ['repository', 'tenant_aware'], // optionally tag
     ],
+```
 
 ### Security Models
 
@@ -562,23 +565,26 @@ For example: say you want to have a "global" policy where all unowned data is sh
 but you also have your own data that is private to your tenant, you could add this as a new
 method:
 
-    class AppTenantAwareRepository extends TenantAwareRepository
-    {
+```php
+<?php
+class AppTenantAwareRepository extends TenantAwareRepository
+{
 
-        protected function applyGlobalSecurityModel(QueryBuilder $qb, $alias)
-        {
-            $qb
-                ->where("({$alias}.tenantOwnerId IS NULL OR {$alias}.tenantOwnerId = :tenantOwnerId)")
-                ->setParameters([
-                    ':tenantOwnerId' => $this->tenant->getTenantOwnerId(),
-                ])
-            ;
-        }
+    protected function applyGlobalSecurityModel(QueryBuilder $qb, $alias)
+    {
+        $qb
+            ->where("({$alias}.tenantOwnerId IS NULL OR {$alias}.tenantOwnerId = :tenantOwnerId)")
+            ->setParameters([
+                ':tenantOwnerId' => $this->tenant->getTenantOwnerId(),
+            ])
+        ;
     }
+}
+```
 
 Additional schemes can be added as needed.
 
-_Note:_ while in theory you can mix security models within a tenant e.g.: some children are
+__Note:__ while in theory you can mix security models within a tenant e.g.: some children are
 closed, others shared, some user; this may result in strange results or inconsistencies.
 It may lead to a large increase in duplicate records. It is up to you to manage this
 accordingly.
@@ -625,41 +631,44 @@ delayed / resolved via the TenantRouteResolver instead.
 The reasons for this setup are to ensure that only the chosen tenants routes are loaded, and not
 appended to any existing routing files.
 
-_Note:_ these are **not** route middleware but Kernel middleware.
+__Note:__ these are **not** route middleware but Kernel middleware.
 
 Your Kernel.php will end up looking like the following:
 
-    class Kernel extends HttpKernel
-    {
-        protected $middleware = [
-            \Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode::class,
+```php
+<?php
+class Kernel extends HttpKernel
+{
+    protected $middleware = [
+        \Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode::class,
 
-            // must appear AFTER maintenance mode, but before everything else
-            \Somnambulist\Tenancy\Http\Middleware\TenantSiteResolver::class,
-            \Somnambulist\Tenancy\Http\Middleware\TenantRouteResolver::class,
+        // must appear AFTER maintenance mode, but before everything else
+        \Somnambulist\Tenancy\Http\Middleware\TenantSiteResolver::class,
+        \Somnambulist\Tenancy\Http\Middleware\TenantRouteResolver::class,
 
-            \App\Http\Middleware\EncryptCookies::class,
-            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
-            \Illuminate\Session\Middleware\StartSession::class,
-            \Illuminate\View\Middleware\ShareErrorsFromSession::class,
-            \App\Http\Middleware\VerifyCsrfToken::class,
-        ];
+        \App\Http\Middleware\EncryptCookies::class,
+        \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+        \Illuminate\Session\Middleware\StartSession::class,
+        \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+        \App\Http\Middleware\VerifyCsrfToken::class,
+    ];
 
-        protected $routeMiddleware = [
-            'auth' => \App\Http\Middleware\Authenticate::class,
-            'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
-            'auth.tenant' => \Somnambulist\Tenancy\Http\Middleware\AuthenticateTenant::class,
-            'auth.tenant.type' => \Somnambulist\Tenancy\Http\Middleware\EnsureTenantType::class,
-            'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
-        ];
-    }
+    protected $routeMiddleware = [
+        'auth' => \App\Http\Middleware\Authenticate::class,
+        'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
+        'auth.tenant' => \Somnambulist\Tenancy\Http\Middleware\AuthenticateTenant::class,
+        'auth.tenant.type' => \Somnambulist\Tenancy\Http\Middleware\EnsureTenantType::class,
+        'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
+    ];
+}
+```
 
 The auth.tenant / auth.tenant.type are optional in multi-site, and should only be included if
 you are using multi-account tenancy.
 
 Again: ensure that the previous RouteServiceProvider in config/app.php has been removed.
 
-_Note:_ you must **not** use the standard route:list, route:cache in a multi-site setup. Tenant
+__Note:__ you must **not** use the standard route:list, route:cache in a multi-site setup. Tenant
 aware versions of these commands are automatically registered if a multi-site setup is detected
 in the configuration settings and are prefixed with tenant:.
 
@@ -668,17 +677,19 @@ in the configuration settings and are prefixed with tenant:.
 When using the TenantRouteResolver, you must specify the route namespace in the tenancy config
 file under the multi_site configuration block:
 
-    <?php
-    // config/app.php
-    return [
-        // other stuff...
-        'multi_site' => [
-            'router' => [
-                'namespace' => 'App\Http\Controller', // default
-            ],
+```php
+<?php
+// config/app.php
+return [
+    // other stuff...
+    'multi_site' => [
+        'router' => [
+            'namespace' => 'App\Http\Controller', // default
         ],
-        // more stuff...
-    ];
+    ],
+    // more stuff...
+];
+```
 
 If left out, the default App\Http\Controller is used. If set to an empty string, then no
 namespace prefix will be set on any routes.
@@ -689,20 +700,22 @@ Like the namespace, patterns can still be set by adding them to your config/tena
 multi_site.router.patterns. This is an associative array of identifier and pattern. They are
 registered with the router when the routes are resolved.
 
-    <?php
-    // config/app.php
-    return [
-        // other stuff...
-        'multi_site' => [
-            'router' => [
-                'namespace' => 'App\Http\Controller', // default
-                'patterns' => [
-                    'id' => '[0-9]+',
-                ],
+```php
+<?php
+// config/app.php
+return [
+    // other stuff...
+    'multi_site' => [
+        'router' => [
+            'namespace' => 'App\Http\Controller', // default
+            'patterns' => [
+                'id' => '[0-9]+',
             ],
         ],
-        // more stuff...
-    ];
+    ],
+    // more stuff...
+];
+```
 
 ## Middleware
 
@@ -749,7 +762,7 @@ the following template functions:
 This allows access to the current resolved Tenant instance. To enable the Twig extension, add it to
 the list of extensions in the config/twigbridge.php file.
 
-_Note:_ in a previous iteration, this included functions to look up tenant owner/creator from
+__Note:__ in a previous iteration, this included functions to look up tenant owner/creator from
 a repository, however: as the tenant could be domain aware or standard tenant, you do not
 know which repository to use so it was removed. Further: this information almost certainly
 should not be being pulled in a standard view anyway.
