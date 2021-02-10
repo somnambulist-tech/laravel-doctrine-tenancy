@@ -2,6 +2,8 @@
 
 namespace Somnambulist\Tenancy\Contracts;
 
+use UnexpectedValueException;
+
 /**
  * Interface TenantParticipantRepository
  *
@@ -43,7 +45,7 @@ interface TenantParticipantRepository
      *
      * @return array The objects.
      *
-     * @throws \UnexpectedValueException
+     * @throws UnexpectedValueException
      */
     public function findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null);
 

@@ -7,9 +7,10 @@ Change Log
 Changed:
 
  * Added `api` to fallbacks in TenantRouteResolver
+ * Added `final` to the bundled `SecurityModel` as it cannot be extended
  * Update view loading to reduce steps
  * Update `Traits` to `Entities\Concerns`
- * Added `final` to the bundled `SecurityModel` as it cannot be extended
+ * Fix changes in Doctrine interfaces
 
 Removed:
 

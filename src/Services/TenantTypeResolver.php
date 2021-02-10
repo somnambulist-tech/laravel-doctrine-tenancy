@@ -3,6 +3,7 @@
 namespace Somnambulist\Tenancy\Services;
 
 use Illuminate\Support\Collection;
+use InvalidArgumentException;
 use Somnambulist\Tenancy\Contracts\TenantParticipant as TenantParticipantContract;
 
 /**
@@ -38,7 +39,7 @@ class TenantTypeResolver
     public function hasType(TenantParticipantContract $tenant, $type)
     {
         if (null === $class = $this->getMapping($type)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 sprintf('Type "%s" is not mapped to the TenantParticipant class', $type)
             );
         }

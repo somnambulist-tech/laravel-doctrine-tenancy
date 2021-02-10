@@ -2,6 +2,8 @@
 
 namespace Somnambulist\Tenancy\Contracts;
 
+use Doctrine\Common\Collections\Collection;
+
 /**
  * Interface BelongsToTenantParticipants
  *
@@ -12,7 +14,7 @@ interface BelongsToTenantParticipants
 {
 
     /**
-     * @return TenantParticipant[]
+     * @return Collection|TenantParticipant[]
      */
     public function getTenantParticipants();
 }

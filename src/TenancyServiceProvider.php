@@ -17,9 +17,7 @@ use Somnambulist\Tenancy\Foundation\TenantAwareApplication;
 use Somnambulist\Tenancy\Http\TenantRedirectorService;
 use Somnambulist\Tenancy\Repositories\DomainAwareTenantParticipantRepository;
 use Somnambulist\Tenancy\Repositories\TenantParticipantRepository;
-use Somnambulist\Tenancy\Routing\UrlGenerator;
 use Somnambulist\Tenancy\Services\TenantTypeResolver;
-use Somnambulist\Tenancy\View\FileViewFinder;
 
 /**
  * Class TenancyServiceProvider

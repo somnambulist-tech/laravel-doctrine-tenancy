@@ -4,6 +4,7 @@ namespace Somnambulist\Tenancy\Repositories;
 
 use Somnambulist\Tenancy\Contracts\TenantParticipant as TenantParticipantContract;
 use Somnambulist\Tenancy\Contracts\TenantParticipantRepository as RepositoryContract;
+use UnexpectedValueException;
 
 /**
  * Class TenantParticipantRepository
@@ -66,7 +67,7 @@ class TenantParticipantRepository implements RepositoryContract
      *
      * @return array|TenantParticipantContract[] The objects.
      *
-     * @throws \UnexpectedValueException
+     * @throws UnexpectedValueException
      */
     public function findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
     {

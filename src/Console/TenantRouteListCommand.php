@@ -5,6 +5,7 @@ namespace Somnambulist\Tenancy\Console;
 use Closure;
 use Illuminate\Routing\AbstractRouteCollection;
 use Illuminate\Routing\Route;
+use Illuminate\Routing\RouteCollection;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Symfony\Component\Console\Input\InputOption;
@@ -39,7 +40,7 @@ class TenantRouteListCommand extends AbstractTenantCommand
     /**
      * An array of all the registered routes.
      *
-     * @var \Illuminate\Routing\RouteCollection
+     * @var RouteCollection
      */
     protected $routes;
 
