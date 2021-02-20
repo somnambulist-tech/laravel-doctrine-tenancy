@@ -1,6 +1,13 @@
 Change Log
 ==========
 
+2021-02-20
+----------
+
+Changed:
+
+ * Relaxed type hint in console command to account for cached routes
+
 2021-02-10
 ----------
 

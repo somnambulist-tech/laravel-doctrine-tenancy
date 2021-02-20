@@ -78,7 +78,7 @@ class TenantRouteCacheCommand extends AbstractTenantCommand
         return $this->resolveTenantRoutes($domain);
     }
 
-    protected function buildRouteCacheFile(RouteCollection $routes): string
+    protected function buildRouteCacheFile(AbstractRouteCollection $routes): string
     {
         $stub = $this->files->get(__DIR__ . '/stubs/routes.stub');
 
