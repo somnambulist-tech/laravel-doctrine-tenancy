@@ -1,6 +1,6 @@
 ## Multi-Tenancy for Laravel and Laravel-Doctrine
 
-[![GitHub Actions Build Status](https://img.shields.io/github/workflow/status/somnambulist-tech/laravel-doctrine-tenancy/tests?logo=github)](https://github.com/somnambulist-tech/laravel-doctrine-tenancy/actions?query=workflow%3Atests)
+[![GitHub Actions Build Status](https://img.shields.io/github/actions/workflow/status/somnambulist-tech/laravel-doctrine-tenancy/tests.yml?logo=github&branch=master)](https://github.com/somnambulist-tech/laravel-doctrine-tenancy/actions?query=workflow%3Atests)
 [![Issues](https://img.shields.io/github/issues/somnambulist-tech/laravel-doctrine-tenancy?logo=github)](https://github.com/somnambulist-tech/laravel-doctrine-tenancy/issues)
 [![License](https://img.shields.io/github/license/somnambulist-tech/laravel-doctrine-tenancy?logo=github)](https://github.com/somnambulist-tech/laravel-doctrine-tenancy/blob/master/LICENSE)
 [![PHP Version](https://img.shields.io/packagist/php-v/somnambulist/laravel-doctrine-tenancy?logo=php&logoColor=white)](https://packagist.org/packages/somnambulist/laravel-doctrine-tenancy)
